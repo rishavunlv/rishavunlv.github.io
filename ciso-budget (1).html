@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CISO Budget Defense — Risk Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2e45;
+    --navy-light: #243d59;
+    --accent: #00c6a2;
+    --accent-dim: rgba(0,198,162,0.12);
+    --accent-glow: rgba(0,198,162,0.25);
+    --danger: #ff5b5b;
+    --danger-dim: rgba(255,91,91,0.12);
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --text-primary: #e8f0f7;
+    --text-secondary: #7a9bbf;
+    --text-muted: #4a6a8a;
+    --border: rgba(255,255,255,0.07);
+    --border-accent: rgba(0,198,162,0.3);
+    --card-bg: rgba(26,46,69,0.6);
+    --card-bg-solid: #1a2e45;
+    --input-bg: rgba(13,27,42,0.8);
+    --sidebar-w: 240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND GRID */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,198,162,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,198,162,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* TOP NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 56px;
+    background: rgba(13,27,42,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    gap: 16px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -0.2px;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .nav-logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .nav-spacer { flex: 1; }
+
+  .nav-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    width: 200px;
+    cursor: text;
+    transition: border-color 0.2s, width 0.3s;
+  }
+
+  .nav-search:hover { border-color: var(--border-accent); width: 240px; }
+
+  .nav-badge {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    letter-spacing: 0.3px;
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* SIDEBAR */
+  aside {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    padding: 24px 0;
+    border-right: 1px solid var(--border);
+    background: rgba(13,27,42,0.5);
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 20px;
+    margin-bottom: 6px;
+  }
+
+  .sidebar-nav { list-style: none; margin-bottom: 24px; }
+
+  .sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 20px;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    border-radius: 0;
+  }
+
+  .sidebar-nav li a:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.04);
+    border-left-color: var(--text-muted);
+  }
+
+  .sidebar-nav li a.active {
+    color: var(--accent);
+    background: var(--accent-dim);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+
+  .sidebar-nav li a .icon {
+    width: 16px; height: 16px;
+    opacity: 0.6;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .sidebar-nav li a.active .icon { opacity: 1; }
+
+  /* MAIN CONTENT */
+  main {
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 920px;
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .page-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .page-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 16px; height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  h1 {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.6px;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .page-desc {
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    max-width: 560px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,198,162,0.2), transparent);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title .dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* INPUT GRID */
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-prefix {
+    position: absolute;
+    left: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    pointer-events: none;
+  }
+
+  .input-suffix {
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+    pointer-events: none;
+    font-weight: 500;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    height: 44px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text-primary);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 0 40px 0 28px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--border-accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  input[type="number"]:hover:not(:focus) {
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  /* RANGE SLIDER */
+  .slider-field {
+    margin-bottom: 20px;
+  }
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .slider-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--border-accent);
+    border-radius: 6px;
+    padding: 2px 10px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--navy);
+    border: 2px solid var(--accent);
+    cursor: grab;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 0 6px var(--accent-glow);
+  }
+
+  input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .btn {
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    letter-spacing: 0.1px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0d1b2a;
+  }
+
+  .btn-primary:hover {
+    background: #00e0b8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--accent-glow);
+  }
+
+  .btn-primary:active { transform: translateY(0); box-shadow: none; }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--border-accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .btn-outline:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* RESULTS SECTION */
+  #results-section {
+    margin-top: 28px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  #results-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+
+  /* METRIC GRID */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .metric-card {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .metric-card:hover { border-color: rgba(255,255,255,0.14); }
+
+  .metric-card.danger { border-color: rgba(255,91,91,0.2); background: rgba(255,91,91,0.04); }
+  .metric-card.safe  { border-color: rgba(0,198,162,0.2); background: rgba(0,198,162,0.04); }
+  .metric-card.warn  { border-color: rgba(245,166,35,0.2); background: rgba(245,166,35,0.04); }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .metric-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .metric-card.danger .metric-value { color: var(--danger); }
+  .metric-card.safe .metric-value  { color: var(--accent); }
+  .metric-card.warn .metric-value  { color: var(--amber); }
+
+  .metric-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* COMPARISON STRIP */
+  .comparison-strip {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+
+  .strip-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .vs-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .vs-item { }
+
+  .vs-item-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .vs-item-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .vs-item-val.cold { color: var(--danger); }
+  .vs-item-val.hot  { color: var(--accent); }
+
+  .vs-badge {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .bar-track {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .bar-fill.cold { background: var(--danger); }
+  .bar-fill.hot  { background: var(--accent); }
+
+  /* CHART AREA */
+  .chart-card {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+
+  canvas { width: 100% !important; }
+
+  /* INPUTS SUMMARY */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  .summary-table tr {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .summary-table tr:last-child { border-bottom: none; }
+
+  .summary-table td {
+    padding: 11px 0;
+    color: var(--text-secondary);
+  }
+
+  .summary-table td:last-child {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+
+  /* VERDICT */
+  .verdict-banner {
+    border-radius: 11px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    border: 1px solid;
+  }
+
+  .verdict-banner.recommended {
+    background: rgba(0,198,162,0.06);
+    border-color: rgba(0,198,162,0.25);
+  }
+
+  .verdict-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: var(--accent-dim);
+  }
+
+  .verdict-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--accent);
+  }
+
+  .verdict-text {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* PRINT / PDF STYLES */
+  @media print {
+    nav, aside, .btn-row, .scroll-hint { display: none !important; }
+    main { padding: 20px; max-width: 100%; }
+    body, .card, .metric-card, .comparison-strip, .chart-card { background: white !important; color: black !important; }
+    .metric-value, .vs-item-val.cold { color: #c00 !important; }
+    .vs-item-val.hot, .verdict-title { color: #007a63 !important; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 780px) {
+    aside { display: none; }
+    main { padding: 24px 20px; }
+    .input-grid { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr 1fr; }
+    h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon">🛡</div>
+    Risk Calculator
+  </a>
+  <div class="nav-spacer"></div>
+  <span class="nav-badge">CISO Tools</span>
+  <div class="nav-search">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    Search…
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="sidebar-section-label">Navigation</div>
+    <ul class="sidebar-nav">
+      <li><a href="#">
+        <span class="icon">⌂</span> Home
+      </a></li>
+      <li><a href="#">
+        <span class="icon">ℹ</span> About
+      </a></li>
+    </ul>
+
+    <div class="sidebar-section-label">Tools</div>
+    <ul class="sidebar-nav">
+      <li><a href="./ciso-budget (1).html" class="active">
+        <span class="icon">📊</span> CISO Budget Defense
+      </a></li>
+      <li><a href="./index.html">
+        <span class="icon">🏢</span> Small Business Check
+      </a></li>
+    </ul>
+
+    <div style="margin: 28px 20px 0; padding: 16px; background: var(--accent-dim); border: 1px solid var(--border-accent); border-radius: 10px;">
+      <div style="font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.6px; margin-bottom: 6px;">PRO TIP</div>
+      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">Adjust sliders in real-time to see how recovery time affects ROI instantly.</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="page-header">
+      <div class="page-eyebrow">Disaster Recovery Analysis</div>
+      <h1>CISO Budget Defense</h1>
+      <p class="page-desc">Compare the total cost of a <strong style="color:var(--danger)">Cold Site</strong> (slow recovery) versus a <strong style="color:var(--accent)">Hot Site</strong> (fast recovery) — and generate an executive-ready report.</p>
+    </div>
+
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> Configuration Parameters</div>
+
+      <div class="input-grid">
+        <div class="field">
+          <label>Daily Revenue <span class="field-hint">(USD)</span></label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="daily-rev" value="100000" min="0" step="1000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Cold Site Fixed Cost <span class="field-hint">(USD)</span></label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="cold-cost" value="0" min="0" step="1000">
+          </div>
+        </div>
+      </div>
+
+      <div class="slider-field">
+        <div class="slider-header">
+          <label>Cold Site Recovery</label>
+          <span class="slider-value" id="cold-days-val">14 days</span>
+        </div>
+        <input type="range" id="cold-days" min="1" max="90" value="14" step="1">
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text-muted)">
+          <span>1 day</span><span>90 days</span>
+        </div>
+      </div>
+
+      <div class="slider-field">
+        <div class="slider-header">
+          <label>Hot Site Fixed Cost</label>
+          <span class="slider-value" id="hot-cost-val">$50,000</span>
+        </div>
+        <input type="range" id="hot-cost-r" min="0" max="500000" value="50000" step="5000">
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text-muted)">
+          <span>$0</span><span>$500k</span>
+        </div>
+      </div>
+
+      <div class="slider-field">
+        <div class="slider-header">
+          <label>Hot Site Recovery</label>
+          <span class="slider-value" id="hot-hours-val">4 hours</span>
+        </div>
+        <input type="range" id="hot-hours" min="0.5" max="72" value="4" step="0.5">
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text-muted)">
+          <span>0.5 hr</span><span>72 hrs</span>
+        </div>
+      </div>
+
+      <div class="divider" style="margin:20px 0"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calculate()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+          Calculate
+        </button>
+        <button class="btn btn-outline" id="pdf-btn" onclick="downloadPDF()" disabled>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0-3-3m3 3 3-3m2 8H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"/></svg>
+          Download PDF
+        </button>
+        <button class="btn btn-outline" onclick="resetForm()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results-section">
+
+      <!-- VERDICT -->
+      <div class="divider"></div>
+      <div class="verdict-banner recommended" id="verdict-banner">
+        <div class="verdict-icon">✓</div>
+        <div>
+          <div class="verdict-title" id="verdict-title">Hot Site Recommended</div>
+          <div class="verdict-text" id="verdict-text">Loading analysis…</div>
+        </div>
+      </div>
+
+      <!-- METRIC GRID -->
+      <div class="metric-grid">
+        <div class="metric-card danger">
+          <div class="metric-label">Cold Site Loss</div>
+          <div class="metric-value" id="m-cold">—</div>
+          <div class="metric-sub" id="m-cold-sub">Total downtime cost</div>
+        </div>
+        <div class="metric-card safe">
+          <div class="metric-label">Hot Site Total</div>
+          <div class="metric-value" id="m-hot">—</div>
+          <div class="metric-sub" id="m-hot-sub">Fixed + downtime cost</div>
+        </div>
+        <div class="metric-card warn">
+          <div class="metric-label">Net Savings</div>
+          <div class="metric-value" id="m-savings">—</div>
+          <div class="metric-sub" id="m-savings-sub">Choosing hot site</div>
+        </div>
+      </div>
+
+      <!-- COMPARISON STRIP -->
+      <div class="comparison-strip">
+        <div class="strip-title">Side-by-Side Comparison</div>
+
+        <div class="vs-row">
+          <div class="vs-item">
+            <div class="vs-item-label">❄ Cold Site — Downtime Cost</div>
+            <div class="vs-item-val cold" id="c-cold-cost">—</div>
+          </div>
+          <div class="vs-badge" id="vs-badge">—</div>
+          <div class="vs-item" style="text-align:right">
+            <div class="vs-item-label">🔥 Hot Site — Total Cost</div>
+            <div class="vs-item-val hot" id="c-hot-cost">—</div>
+          </div>
+        </div>
+
+        <div class="bar-track">
+          <div class="bar-fill cold" id="bar-cold" style="width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text-muted)">
+          <span>Cold Site</span><span>Hot Site</span>
+        </div>
+        <div class="bar-track" style="margin-top:4px">
+          <div class="bar-fill hot" id="bar-hot" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- CHART -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Cost Over Recovery Time</div>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:var(--danger)"></span>Cold Site</span>
+            <span><span class="legend-dot" style="background:var(--accent)"></span>Hot Site</span>
+          </div>
+        </div>
+        <canvas id="costChart" height="220"></canvas>
+      </div>
+
+      <!-- REPORT CARD -->
+      <div class="card" id="report-card">
+        <div class="card-title"><span class="dot"></span> Automated Report</div>
+
+        <!-- Header row -->
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--accent),#0099cc);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🛡</div>
+          <div>
+            <div style="font-weight:600;font-size:16px;color:var(--text-primary)">Risk Calculator</div>
+            <div style="font-size:13px;color:var(--text-secondary)">CISO Budget Defense — Automated Report</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px" id="report-date"></div>
+          </div>
+        </div>
+
+        <!-- Inputs Summary -->
+        <div style="margin-bottom:24px">
+          <div style="font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:12px">Input Parameters</div>
+          <table class="summary-table">
+            <tr><td>Daily Revenue</td><td id="r-rev">—</td></tr>
+            <tr><td>Cold Site Recovery</td><td id="r-cold-days">—</td></tr>
+            <tr><td>Cold Site Fixed Cost</td><td id="r-cold-cost">—</td></tr>
+            <tr><td>Hot Site Fixed Cost</td><td id="r-hot-cost">—</td></tr>
+            <tr><td>Hot Site Recovery</td><td id="r-hot-hours">—</td></tr>
+          </table>
+        </div>
+
+        <!-- Results Summary -->
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:0.4px;text-transform:uppercase;margin-bottom:12px">Analysis Results</div>
+          <table class="summary-table">
+            <tr><td>Cold Site Total Loss</td><td id="r-cold-total" style="color:var(--danger)!important">—</td></tr>
+            <tr><td>Hot Site Total Cost</td><td id="r-hot-total" style="color:var(--accent)!important">—</td></tr>
+            <tr><td>Net Savings (Hot Site)</td><td id="r-savings" style="color:var(--amber)!important">—</td></tr>
+            <tr><td>Recommendation</td><td id="r-rec">—</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const fmt = (n) => '$' + Math.round(n).toLocaleString('en-US');
+  let chartInst = null;
+  let calculated = false;
+
+  // Sync sliders
+  const coldDaysInput = document.getElementById('cold-days');
+  const hotCostInput  = document.getElementById('hot-cost-r');
+  const hotHoursInput = document.getElementById('hot-hours');
+
+  coldDaysInput.addEventListener('input', () => {
+    document.getElementById('cold-days-val').textContent = coldDaysInput.value + ' day' + (coldDaysInput.value == 1 ? '' : 's');
+    if (calculated) calculate(false);
+  });
+
+  hotCostInput.addEventListener('input', () => {
+    document.getElementById('hot-cost-val').textContent = fmt(hotCostInput.value);
+    if (calculated) calculate(false);
+  });
+
+  hotHoursInput.addEventListener('input', () => {
+    const v = parseFloat(hotHoursInput.value);
+    document.getElementById('hot-hours-val').textContent = v + ' hour' + (v == 1 ? '' : 's');
+    if (calculated) calculate(false);
+  });
+
+  function calculate(animate = true) {
+    const dailyRev   = parseFloat(document.getElementById('daily-rev').value) || 0;
+    const coldDays   = parseFloat(coldDaysInput.value) || 14;
+    const coldFixed  = parseFloat(document.getElementById('cold-cost').value) || 0;
+    const hotFixed   = parseFloat(hotCostInput.value) || 50000;
+    const hotHours   = parseFloat(hotHoursInput.value) || 4;
+
+    const hourlyRev   = dailyRev / 24;
+    const coldLoss    = dailyRev * coldDays + coldFixed;
+    const hotDowntime = hourlyRev * hotHours;
+    const hotTotal    = hotFixed + hotDowntime;
+    const savings     = coldLoss - hotTotal;
+    const hotWins     = hotTotal < coldLoss;
+
+    // Update metrics
+    document.getElementById('m-cold').textContent     = fmt(coldLoss);
+    document.getElementById('m-hot').textContent      = fmt(hotTotal);
+    document.getElementById('m-savings').textContent  = fmt(Math.abs(savings));
+    document.getElementById('m-savings-sub').textContent = hotWins ? 'By choosing hot site' : 'Cold site is cheaper';
+    if (!hotWins) {
+      document.getElementById('m-savings').closest('.metric-card').className = 'metric-card danger';
+    } else {
+      document.getElementById('m-savings').closest('.metric-card').className = 'metric-card warn';
+    }
+
+    // Comparison strip
+    document.getElementById('c-cold-cost').textContent = fmt(coldLoss);
+    document.getElementById('c-hot-cost').textContent  = fmt(hotTotal);
+    const badge = document.getElementById('vs-badge');
+    if (hotWins) {
+      const pct = Math.round((savings / coldLoss) * 100);
+      badge.textContent = pct + '% cheaper';
+      badge.style.background = 'var(--accent-dim)';
+      badge.style.color = 'var(--accent)';
+      badge.style.borderColor = 'var(--border-accent)';
+    } else {
+      const pct = Math.round((Math.abs(savings) / hotTotal) * 100);
+      badge.textContent = pct + '% more costly';
+      badge.style.background = 'var(--danger-dim)';
+      badge.style.color = 'var(--danger)';
+      badge.style.borderColor = 'rgba(255,91,91,0.3)';
+    }
+
+    // Bars
+    const maxCost = Math.max(coldLoss, hotTotal) || 1;
+    document.getElementById('bar-cold').style.width = Math.round((coldLoss / maxCost) * 100) + '%';
+    document.getElementById('bar-hot').style.width  = Math.round((hotTotal / maxCost) * 100) + '%';
+
+    // Verdict
+    const vTitle = document.getElementById('verdict-title');
+    const vText  = document.getElementById('verdict-text');
+    if (hotWins) {
+      vTitle.textContent = '🔥 Hot Site Recommended';
+      vTitle.style.color = 'var(--accent)';
+      vText.textContent = `Investing in a hot site saves ${fmt(savings)} compared to a cold site recovery. With only ${hotHours} hour(s) of downtime vs ${coldDays} days, the operational disruption cost is dramatically lower.`;
+    } else {
+      vTitle.textContent = '❄ Cold Site May Suffice';
+      vTitle.style.color = 'var(--amber)';
+      vText.textContent = `At current inputs, the hot site costs ${fmt(Math.abs(savings))} more than a cold site recovery. Consider reducing the hot site fixed cost or if downtime risk is critical to the business.`;
+    }
+
+    // Report
+    document.getElementById('r-rev').textContent       = fmt(dailyRev) + '/day';
+    document.getElementById('r-cold-days').textContent = coldDays + ' day(s)';
+    document.getElementById('r-cold-cost').textContent = fmt(coldFixed);
+    document.getElementById('r-hot-cost').textContent  = fmt(hotFixed);
+    document.getElementById('r-hot-hours').textContent = hotHours + ' hour(s)';
+    document.getElementById('r-cold-total').textContent= fmt(coldLoss);
+    document.getElementById('r-hot-total').textContent = fmt(hotTotal);
+    document.getElementById('r-savings').textContent   = fmt(Math.abs(savings));
+    document.getElementById('r-rec').textContent       = hotWins ? '🔥 Hot Site' : '❄ Cold Site';
+    document.getElementById('report-date').textContent = 'Generated: ' + new Date().toLocaleString();
+
+    // Chart
+    buildChart(dailyRev, coldFixed, hotFixed, hotHours, coldDays);
+
+    // Show results
+    const section = document.getElementById('results-section');
+    if (!calculated) {
+      section.classList.add('visible');
+      setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+    calculated = true;
+    document.getElementById('pdf-btn').disabled = false;
+  }
+
+  function buildChart(dailyRev, coldFixed, hotFixed, hotHours, maxDays) {
+    const labels = [];
+    const coldData = [];
+    const hotData  = [];
+    const steps = 20;
+    const hourlyRev = dailyRev / 24;
+
+    for (let i = 0; i <= steps; i++) {
+      const days = (i / steps) * maxDays;
+      labels.push(days < 1 ? (days * 24).toFixed(1) + 'h' : days.toFixed(1) + 'd');
+      coldData.push(Math.round(dailyRev * days + coldFixed));
+      hotData.push(Math.round(hotFixed + hourlyRev * hotHours));
+    }
+
+    const ctx = document.getElementById('costChart').getContext('2d');
+    if (chartInst) chartInst.destroy();
+
+    chartInst = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Cold Site',
+            data: coldData,
+            borderColor: '#ff5b5b',
+            backgroundColor: 'rgba(255,91,91,0.08)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            borderWidth: 2.5,
+          },
+          {
+            label: 'Hot Site',
+            data: hotData,
+            borderColor: '#00c6a2',
+            backgroundColor: 'rgba(0,198,162,0.08)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            borderWidth: 2.5,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 600, easing: 'easeInOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1a2e45',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#e8f0f7',
+            bodyColor: '#7a9bbf',
+            callbacks: {
+              label: (c) => ' ' + c.dataset.label + ': $' + c.parsed.y.toLocaleString()
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#4a6a8a', font: { size: 11 }, maxTicksLimit: 8 }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: {
+              color: '#4a6a8a',
+              font: { size: 11 },
+              callback: (v) => '$' + (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v >= 1000 ? (v/1000).toFixed(0)+'k' : v)
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function resetForm() {
+    document.getElementById('daily-rev').value = 100000;
+    document.getElementById('cold-cost').value = 0;
+    coldDaysInput.value = 14;
+    hotCostInput.value  = 50000;
+    hotHoursInput.value = 4;
+    document.getElementById('cold-days-val').textContent = '14 days';
+    document.getElementById('hot-cost-val').textContent  = '$50,000';
+    document.getElementById('hot-hours-val').textContent = '4 hours';
+    calculated = false;
+    document.getElementById('results-section').classList.remove('visible');
+    document.getElementById('pdf-btn').disabled = true;
+  }
+
+  function downloadPDF() {
+    window.print();
+  }
+
+  // Auto-calc on number field change
+  document.getElementById('daily-rev').addEventListener('change', () => { if (calculated) calculate(false); });
+  document.getElementById('cold-cost').addEventListener('change', () => { if (calculated) calculate(false); });
+</script>
+</body>
+</html>
