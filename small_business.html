@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Small Business Reality Check — Risk Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2e45;
+    --navy-light: #243d59;
+    --accent: #00c6a2;
+    --accent-dim: rgba(0,198,162,0.12);
+    --accent-glow: rgba(0,198,162,0.25);
+    --danger: #ff5b5b;
+    --danger-dim: rgba(255,91,91,0.12);
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --text-primary: #e8f0f7;
+    --text-secondary: #7a9bbf;
+    --text-muted: #4a6a8a;
+    --border: rgba(255,255,255,0.07);
+    --border-accent: rgba(0,198,162,0.3);
+    --card-bg: rgba(26,46,69,0.6);
+    --input-bg: rgba(13,27,42,0.8);
+    --sidebar-w: 240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,198,162,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,198,162,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    height: 56px;
+    background: rgba(13,27,42,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 28px; gap: 16px;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.2px;
+    color: var(--text-primary); text-decoration: none;
+  }
+  .nav-logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .nav-spacer { flex: 1; }
+  .nav-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 13px; color: var(--text-muted); width: 200px;
+    cursor: text; transition: border-color 0.2s, width 0.3s;
+  }
+  .nav-search:hover { border-color: var(--border-accent); width: 240px; }
+  .nav-badge {
+    background: var(--amber-dim); color: var(--amber);
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 20px; font-size: 11px; font-weight: 500;
+    padding: 3px 10px; letter-spacing: 0.3px;
+  }
+  .global-tab-bar {
+    display: flex;
+    gap: 10px;
+    padding: 10px 28px;
+    background: rgba(13,27,42,0.92);
+    border-bottom: 2px solid rgba(245,166,35,0.35);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow-x: auto;
+  }
+  .global-tab-link {
+    text-decoration: none;
+    color: var(--text-secondary);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .global-tab-link:hover { color: var(--text-primary); border-color: var(--border-accent); }
+  .global-tab-link.active {
+    color: var(--accent);
+    border-color: var(--border-accent);
+    background: var(--accent-dim);
+  }
+  .product-strip {
+    max-width: 980px;
+    margin: 14px auto 0;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(13,27,42,0.7);
+  }
+  .product-strip .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 7px; }
+  .product-chip { border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; font-size: 12px; color: var(--text-primary); }
+  .muted { color: var(--text-secondary); font-size: 12px; }
+
+  /* LAYOUT */
+  .layout {
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 56px);
+  }
+  .page-top-heading {
+    max-width: 980px;
+    margin: 20px auto 0;
+    padding: 0 48px;
+  }
+  .page-top-heading h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  /* MAIN */
+  main { padding: 40px 48px; max-width: 980px; margin: 0 auto; }
+
+  /* PAGE HEADER */
+  .page-eyebrow {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .page-eyebrow::before {
+    content: ''; display: inline-block;
+    width: 16px; height: 2px;
+    background: var(--amber); border-radius: 2px;
+  }
+  h1 {
+    font-size: 30px; font-weight: 600;
+    letter-spacing: -0.6px; line-height: 1.2;
+    color: var(--text-primary); margin-bottom: 12px;
+  }
+  .page-desc {
+    font-size: 14px; line-height: 1.75;
+    color: var(--text-secondary); max-width: 680px;
+    margin-bottom: 6px;
+  }
+  .use-case-box {
+    margin: 16px 0 32px;
+    padding: 14px 18px;
+    background: var(--amber-dim);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-left: 3px solid var(--amber);
+    border-radius: 8px;
+    font-size: 13.5px; line-height: 1.65;
+    color: var(--text-secondary);
+  }
+  .use-case-box strong { color: var(--amber); }
+
+  /* CARD */
+  .card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px;
+    backdrop-filter: blur(8px); position: relative; overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,166,35,0.2), transparent);
+  }
+  .card-title {
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 22px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .dot { width: 6px; height: 6px; background: var(--amber); border-radius: 50%; }
+
+  /* TWO-COL GRID */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+
+  /* FIELD */
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field.full { grid-column: 1/-1; }
+  label {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.3px;
+    color: var(--text-secondary); display: flex; align-items: center; gap: 6px;
+  }
+  .field-hint { font-size: 11px; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-prefix {
+    position: absolute; left: 12px;
+    font-size: 13px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace; pointer-events: none;
+  }
+  .input-suffix {
+    position: absolute; right: 12px;
+    font-size: 12px; color: var(--text-muted); pointer-events: none; font-weight: 500;
+  }
+
+  input[type="number"], select {
+    width: 100%; height: 44px;
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 9px; color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    padding: 0 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-appearance: textfield; appearance: none;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus, select:focus {
+    outline: none; border-color: rgba(245,166,35,0.4);
+    box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+  }
+  input[type="number"]:hover:not(:focus), select:hover:not(:focus) {
+    border-color: rgba(255,255,255,0.14);
+  }
+  input[type="number"].has-prefix { padding-left: 28px; font-family: 'DM Mono', monospace; }
+  input[type="number"].has-suffix { padding-right: 38px; font-family: 'DM Mono', monospace; }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a6a8a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  select option { background: #1a2e45; }
+
+  /* ARO hint */
+  .aro-note {
+    font-size: 11px; color: var(--accent); margin-top: 4px;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  /* SECTION TITLE inside card */
+  .section-label {
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* BCDR STRATEGY RADIO */
+  .bcdr-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin-bottom: 20px;
+  }
+  .bcdr-option { position: relative; }
+  .bcdr-option input[type="radio"] { display: none; }
+  .bcdr-option label {
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 16px 18px; border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--input-bg); cursor: pointer;
+    transition: all 0.18s; font-size: 14px;
+    font-weight: 500; color: var(--text-secondary);
+    letter-spacing: 0; line-height: 1.3;
+  }
+  .bcdr-option input:checked + label {
+    border-color: var(--amber); background: var(--amber-dim);
+    color: var(--amber);
+  }
+  .bcdr-option label:hover { border-color: rgba(255,255,255,0.16); color: var(--text-primary); }
+  .bcdr-option input:checked + label:hover { border-color: var(--amber); color: var(--amber); }
+  .bcdr-option label .bcdr-icon { font-size: 20px; }
+  .bcdr-option label .bcdr-meta { font-size: 11px; font-weight: 400; color: var(--text-muted); }
+  .bcdr-option input:checked + label .bcdr-meta { color: rgba(245,166,35,0.7); }
+
+  /* CONTROLS CHECKLIST */
+  .controls-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .control-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--input-bg);
+    cursor: pointer; transition: all 0.18s;
+  }
+  .control-item:hover { border-color: rgba(255,255,255,0.14); }
+  .control-item.checked {
+    border-color: var(--border-accent); background: var(--accent-dim);
+  }
+  .control-item input[type="checkbox"] { display: none; }
+  .control-cb {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border: 1.5px solid var(--border); border-radius: 5px;
+    background: var(--input-bg); margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s; position: relative;
+  }
+  .control-item.checked .control-cb {
+    background: var(--accent); border-color: var(--accent);
+  }
+  .control-item.checked .control-cb::after {
+    content: ''; position: absolute;
+    width: 5px; height: 9px;
+    border: 2px solid #0d1b2a; border-top: none; border-left: none;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .control-info { flex: 1; }
+  .control-name { font-size: 13.5px; font-weight: 500; color: var(--text-primary); margin-bottom: 3px; }
+  .control-item.checked .control-name { color: var(--accent); }
+  .control-desc { font-size: 12px; color: var(--text-muted); }
+  .control-badge {
+    flex-shrink: 0; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    background: var(--accent-dim); color: var(--accent);
+    border: 1px solid var(--border-accent); white-space: nowrap;
+    align-self: center;
+  }
+
+  /* DR TOGGLE */
+  .dr-toggle-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--input-bg);
+    cursor: pointer; margin-bottom: 20px; transition: all 0.18s;
+  }
+  .dr-toggle-row:hover { border-color: rgba(255,255,255,0.14); }
+  .dr-toggle-row.checked { border-color: rgba(167,139,250,0.3); background: var(--purple-dim); }
+  .dr-toggle-row input[type="checkbox"] { display: none; }
+  .toggle-track {
+    position: relative; width: 36px; height: 20px;
+    background: var(--border); border-radius: 10px;
+    transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle-track.on { background: var(--purple); }
+  .toggle-knob {
+    position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: #fff; border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle-track.on .toggle-knob { transform: translateX(16px); }
+  .dr-toggle-label { font-size: 13.5px; font-weight: 500; color: var(--text-secondary); }
+  .dr-toggle-row.checked .dr-toggle-label { color: var(--purple); }
+
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 12px; align-items: center; }
+  .btn {
+    height: 44px; padding: 0 24px; border-radius: 9px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+    border: none; letter-spacing: 0.1px;
+  }
+  .btn-primary { background: var(--amber); color: #0d1b2a; }
+  .btn-primary:hover { background: #ffba42; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,166,35,0.3); }
+  .btn-primary:active { transform: none; box-shadow: none; }
+  .btn-outline {
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--border-accent); color: var(--accent); background: var(--accent-dim); }
+  .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+  /* RESULTS */
+  #results-section {
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+  #results-section.visible { opacity: 1; transform: none; pointer-events: all; }
+
+  /* METRIC GRID */
+  .metric-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 20px;
+  }
+  .metric-card {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 11px; padding: 16px 18px;
+    transition: border-color 0.2s;
+  }
+  .metric-card.danger  { border-color: rgba(255,91,91,0.25); background: rgba(255,91,91,0.05); }
+  .metric-card.safe    { border-color: rgba(0,198,162,0.25); background: rgba(0,198,162,0.05); }
+  .metric-card.warn    { border-color: rgba(245,166,35,0.25); background: rgba(245,166,35,0.05); }
+  .metric-card.purple  { border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.05); }
+  .metric-label { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+  .metric-value { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; line-height: 1; color: var(--text-primary); margin-bottom: 4px; }
+  .metric-card.danger  .metric-value { color: var(--danger); }
+  .metric-card.safe    .metric-value { color: var(--accent); }
+  .metric-card.warn    .metric-value { color: var(--amber); }
+  .metric-card.purple  .metric-value { color: var(--purple); }
+  .metric-sub { font-size: 11px; color: var(--text-muted); }
+
+  /* VERDICT */
+  .verdict-banner {
+    border-radius: 11px; padding: 18px 22px;
+    display: flex; align-items: flex-start; gap: 14px;
+    margin-bottom: 20px; border: 1px solid;
+  }
+  .verdict-banner.good  { background: rgba(0,198,162,0.06); border-color: rgba(0,198,162,0.25); }
+  .verdict-banner.warn  { background: rgba(245,166,35,0.06); border-color: rgba(245,166,35,0.25); }
+  .verdict-banner.bad   { background: rgba(255,91,91,0.06); border-color: rgba(255,91,91,0.25); }
+  .verdict-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .verdict-banner.good .verdict-icon { background: var(--accent-dim); }
+  .verdict-banner.warn .verdict-icon { background: var(--amber-dim); }
+  .verdict-banner.bad  .verdict-icon { background: var(--danger-dim); }
+  .verdict-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .verdict-banner.good .verdict-title { color: var(--accent); }
+  .verdict-banner.warn .verdict-title { color: var(--amber); }
+  .verdict-banner.bad  .verdict-title { color: var(--danger); }
+  .verdict-text { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+
+  /* RESULTS TABLE */
+  .results-box {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 11px; padding: 22px 24px; margin-bottom: 20px;
+  }
+  .results-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .results-table tr { border-bottom: 1px solid var(--border); }
+  .results-table tr:last-child { border-bottom: none; }
+  .results-table td { padding: 12px 0; color: var(--text-secondary); vertical-align: middle; }
+  .results-table td:last-child {
+    text-align: right; font-family: 'DM Mono', monospace;
+    font-weight: 500; color: var(--text-primary); font-size: 13px;
+  }
+  .results-table td .tag {
+    display: inline-block; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 20px; margin-right: 6px;
+    vertical-align: middle;
+  }
+  .tag-calc { background: var(--accent-dim); color: var(--accent); }
+  .tag-info { background: var(--amber-dim); color: var(--amber); }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 11px; padding: 22px 24px; margin-bottom: 20px;
+  }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .chart-title { font-size: 12px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); }
+  .chart-legend { display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); }
+  .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+
+  /* SUMMARY REPORT CARD */
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .summary-table tr { border-bottom: 1px solid var(--border); }
+  .summary-table tr:last-child { border-bottom: none; }
+  .summary-table td { padding: 11px 0; color: var(--text-secondary); }
+  .summary-table td:last-child {
+    text-align: right; font-family: 'DM Mono', monospace;
+    font-weight: 500; color: var(--text-primary); font-size: 13px;
+  }
+
+  @media (max-width: 780px) {
+    main { padding: 24px 20px; }
+    .two-col { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr 1fr; }
+    .bcdr-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 24px; }
+  }
+
+  @media print {
+    nav, aside, .btn-row { display: none !important; }
+    main { padding: 20px; max-width: 100%; }
+    body, .card, .metric-card, .results-box, .chart-card { background: white !important; color: black !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="global-tab-bar">
+  <a class="global-tab-link" href="./index.html">Data Intelligence Command Center</a>
+  <a class="global-tab-link" href="./ciso_budget.html">CISO Budget Defense</a>
+  <a class="global-tab-link" href="./dashboard.html">GraphRAG Risk Propagation Explorer</a>
+  <a class="global-tab-link active" href="./small_business.html">Small Business Reality Check</a>
+  <a class="global-tab-link" href="./risk_dashboard.html">Cybersecurity Risk Assessment</a>
+</div>
+<div class="product-strip">
+  <div class="row"><strong>◆ Data Intelligence Command Center</strong></div>
+  <div class="row muted">GraphRAG • AIOps • Red Teaming</div>
+  <div class="row">
+    <span class="product-chip">▲ GraphRAG Risk Propagation</span>
+    <span class="product-chip">⚡ AIOps &amp; FinOps Dashboard</span>
+    <span class="product-chip">🔒 AI Red Teaming Audit</span>
+  </div>
+  <div class="row muted"><span>Live • branch_V2</span><span>Data Intelligence</span></div>
+</div>
+<div class="page-top-heading">
+  <h1>Small Business Reality Check</h1>
+</div>
+
+<div class="layout">
+  <main>
+    <div style="margin-bottom:32px">
+      <div class="page-eyebrow">Annual Loss Expectancy Analysis</div>
+      <h1>Small Business Reality Check</h1>
+      <p class="page-desc">Help small business owners understand how even a low-probability event can have a large Annual Loss Expectancy (ALE).</p>
+      <div class="use-case-box">
+        <strong>Use Case:</strong> A small retailer thinks "Hackers won't target me." Select your sector (Retail), set your asset value and exposure factor (how much you'd lose without backups), and the tool will compute <strong>SLE</strong> and <strong>ALE</strong> — producing an executive-ready report.
+      </div>
+    </div>
+
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span> Business Parameters</div>
+
+      <div class="two-col">
+        <div class="field">
+          <label>Sector</label>
+          <select id="sector" onchange="onSectorChange()">
+            <option value="retail">Retail</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="finance">Finance</option>
+            <option value="education">Education</option>
+            <option value="manufacturing">Manufacturing</option>
+            <option value="technology">Technology</option>
+            <option value="hospitality">Hospitality</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Asset Value at Risk <span style="color:var(--text-muted);font-weight:400">(USD)</span></label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="asset-val" class="has-prefix" value="100000" min="0" step="1000">
+          </div>
+        </div>
+        <div class="field">
+          <label>Exposure Factor (EF %)</label>
+          <div class="input-wrap">
+            <input type="number" id="ef" class="has-suffix" value="100" min="0" max="100" step="1">
+            <span class="input-suffix">%</span>
+          </div>
+          <div class="field-hint">100% = no backups; 50% = partial recovery possible</div>
+        </div>
+        <div class="field">
+          <label>Revenue <span style="color:var(--text-muted);font-weight:400">(Optional)</span></label>
+          <div class="input-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" id="revenue" class="has-prefix" placeholder="Uses sector avg if blank" min="0" step="1000">
+          </div>
+          <div class="field-hint">Leave blank to use sector AvgBreachCost</div>
+        </div>
+        <div class="field full">
+          <label>Annualized Rate of Occurrence (ARO)</label>
+          <div class="input-wrap">
+            <input type="number" id="aro" value="0.14" min="0" max="10" step="0.01" style="font-family:'DM Mono',monospace">
+          </div>
+          <div class="aro-note">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            years⁻¹ — populated from sector data by default
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- BCDR -->
+      <div class="section-label">BCDR Strategy</div>
+      <div class="bcdr-grid">
+        <div class="bcdr-option">
+          <input type="radio" name="bcdr" id="cold" value="cold" checked onchange="onBCDRChange()">
+          <label for="cold">
+            <span class="bcdr-icon">❄</span>
+            Cold Site
+            <span class="bcdr-meta">336 hr recovery · $10k/yr</span>
+          </label>
+        </div>
+        <div class="bcdr-option">
+          <input type="radio" name="bcdr" id="warm" value="warm" onchange="onBCDRChange()">
+          <label for="warm">
+            <span class="bcdr-icon">🌡</span>
+            Warm Site
+            <span class="bcdr-meta">72 hr recovery · $30k/yr</span>
+          </label>
+        </div>
+        <div class="bcdr-option">
+          <input type="radio" name="bcdr" id="hot" value="hot" onchange="onBCDRChange()">
+          <label for="hot">
+            <span class="bcdr-icon">🔥</span>
+            Hot Site
+            <span class="bcdr-meta">4 hr recovery · $100k/yr</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- CONTROLS CHECKLIST -->
+      <div class="section-label">Controls Checklist (PPT Framework)</div>
+      <div class="controls-list">
+        <div class="control-item" id="ctrl-mfa" onclick="toggleControl('mfa')">
+          <input type="checkbox" id="chk-mfa">
+          <div class="control-cb" id="cb-mfa"></div>
+          <div class="control-info">
+            <div class="control-name">Multi-Factor Authentication</div>
+            <div class="control-desc">Technology control — reduces attack surface significantly</div>
+          </div>
+          <div class="control-badge">ARO −50%</div>
+        </div>
+        <div class="control-item" id="ctrl-phish" onclick="toggleControl('phish')">
+          <input type="checkbox" id="chk-phish">
+          <div class="control-cb" id="cb-phish"></div>
+          <div class="control-info">
+            <div class="control-name">Staff Phishing Training</div>
+            <div class="control-desc">People control — reduces human error incidents</div>
+          </div>
+          <div class="control-badge">ARO −20%</div>
+        </div>
+        <div class="control-item" id="ctrl-succ" onclick="toggleControl('succ')">
+          <input type="checkbox" id="chk-succ">
+          <div class="control-cb" id="cb-succ"></div>
+          <div class="control-info">
+            <div class="control-name">Succession Planning</div>
+            <div class="control-desc">Procedure control — reduces downtime cost</div>
+          </div>
+          <div class="control-badge">Downtime −10%</div>
+        </div>
+      </div>
+
+      <!-- DR TOGGLE -->
+      <div class="dr-toggle-row" id="dr-toggle-row" onclick="toggleDR()">
+        <input type="checkbox" id="chk-dr" checked>
+        <div class="toggle-track on" id="dr-track"><div class="toggle-knob"></div></div>
+        <div class="dr-toggle-label">Include DR annual cost in ROSI calculation</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calculate()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+          Calculate
+        </button>
+        <button class="btn btn-outline" id="pdf-btn" onclick="window.print()" disabled>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0-3-3m3 3 3-3m2 8H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z"/></svg>
+          Download PDF
+        </button>
+        <button class="btn btn-outline" onclick="resetAll()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results-section">
+
+      <!-- VERDICT -->
+      <div class="verdict-banner good" id="verdict-banner">
+        <div class="verdict-icon" id="verdict-icon">✓</div>
+        <div>
+          <div class="verdict-title" id="verdict-title">ROSI is Positive</div>
+          <div class="verdict-text" id="verdict-text">Loading…</div>
+        </div>
+      </div>
+
+      <!-- METRIC GRID -->
+      <div class="metric-grid">
+        <div class="metric-card danger">
+          <div class="metric-label">SLE</div>
+          <div class="metric-value" id="m-sle">—</div>
+          <div class="metric-sub">Single loss expectancy</div>
+        </div>
+        <div class="metric-card warn">
+          <div class="metric-label">ALE Inherent</div>
+          <div class="metric-value" id="m-ale-i">—</div>
+          <div class="metric-sub">Before controls</div>
+        </div>
+        <div class="metric-card safe">
+          <div class="metric-label">ALE Residual</div>
+          <div class="metric-value" id="m-ale-r">—</div>
+          <div class="metric-sub">After controls</div>
+        </div>
+        <div class="metric-card purple">
+          <div class="metric-label">ROSI</div>
+          <div class="metric-value" id="m-rosi">—</div>
+          <div class="metric-sub">Return on security invest.</div>
+        </div>
+      </div>
+
+      <!-- RESULTS TABLE -->
+      <div class="results-box">
+        <div class="section-label" style="margin-bottom:14px">Detailed Results</div>
+        <table class="results-table">
+          <tr>
+            <td><span class="tag tag-calc">Calc</span>Single Loss Expectancy (SLE)</td>
+            <td id="r-sle">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-calc">Calc</span>ALE — Inherent (before controls)</td>
+            <td id="r-ale-i">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-calc">Calc</span>ALE — Residual (after controls)</td>
+            <td id="r-ale-r">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-info">Info</span>Expected Annual Breach Cost</td>
+            <td id="r-breach">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-info">Info</span>Selected BCDR Strategy</td>
+            <td id="r-bcdr">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-calc">Calc</span>Downtime Loss — Cold Site (baseline)</td>
+            <td id="r-dt-cold">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-calc">Calc</span>Downtime Loss — Selected Strategy</td>
+            <td id="r-dt-sel">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-calc">Calc</span>Money Saved by BCDR</td>
+            <td id="r-bcdr-save">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-info">Info</span>Cost of Controls (DR + selected)</td>
+            <td id="r-ctrl-cost">—</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-calc">Calc</span>ROSI</td>
+            <td id="r-rosi">—</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- CHARTS -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Inherent vs Residual Risk (ALE)</div>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:var(--danger)"></span>Inherent</span>
+            <span><span class="legend-dot" style="background:var(--accent)"></span>Residual</span>
+          </div>
+        </div>
+        <canvas id="aleBarChart" height="180"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Sensitivity: ALE vs Exposure Factor (EF)</div>
+        </div>
+        <canvas id="efSensChart" height="200"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Sensitivity: ALE vs ARO</div>
+        </div>
+        <canvas id="aroSensChart" height="200"></canvas>
+      </div>
+
+      <!-- REPORT CARD -->
+      <div class="card" style="margin-top:8px">
+        <div class="card-title"><span class="dot"></span> ALE Report — Inputs & Summary</div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--amber),#e07820);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🛡</div>
+          <div>
+            <div style="font-weight:600;font-size:16px;color:var(--text-primary)">Risk Calculator</div>
+            <div style="font-size:13px;color:var(--text-secondary)">Small Business Reality Check — ALE Report</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px" id="report-date"></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px">
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:0.6px;text-transform:uppercase;margin-bottom:12px">Input Parameters</div>
+          <table class="summary-table">
+            <tr><td>Sector</td><td id="rp-sector">—</td></tr>
+            <tr><td>Asset Value</td><td id="rp-asset">—</td></tr>
+            <tr><td>Exposure Factor (EF)</td><td id="rp-ef">—</td></tr>
+            <tr><td>Annualized Rate of Occurrence (ARO)</td><td id="rp-aro">—</td></tr>
+            <tr><td>Sector Avg. Breach Cost</td><td id="rp-breach">—</td></tr>
+            <tr><td>Sector Downtime Cost / hour</td><td id="rp-dt">—</td></tr>
+          </table>
+        </div>
+
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:0.6px;text-transform:uppercase;margin-bottom:12px">Analysis Results</div>
+          <table class="summary-table">
+            <tr><td>SLE (Asset × EF)</td><td id="rp-sle">—</td></tr>
+            <tr><td>ALE Inherent</td><td id="rp-ale-i" style="color:var(--danger)!important">—</td></tr>
+            <tr><td>ALE Residual</td><td id="rp-ale-r" style="color:var(--accent)!important">—</td></tr>
+            <tr><td>ROSI</td><td id="rp-rosi" style="color:var(--purple)!important">—</td></tr>
+            <tr><td>Recommendation</td><td id="rp-rec">—</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /results -->
+  </main>
+</div>
+
+<script>
+// ─── SECTOR DATA ───────────────────────────────────────────────────────────────
+const SECTORS = {
+  retail:        { name: 'Retail',         aro: 0.14, avgBreachCost: 2500000, downtimeCost: 200000 },
+  healthcare:    { name: 'Healthcare',     aro: 0.22, avgBreachCost: 10900000, downtimeCost: 636000 },
+  finance:       { name: 'Finance',        aro: 0.19, avgBreachCost: 5970000, downtimeCost: 500000 },
+  education:     { name: 'Education',      aro: 0.10, avgBreachCost: 3790000, downtimeCost: 120000 },
+  manufacturing: { name: 'Manufacturing',  aro: 0.12, avgBreachCost: 4470000, downtimeCost: 2500000 },
+  technology:    { name: 'Technology',     aro: 0.17, avgBreachCost: 4970000, downtimeCost: 300000 },
+  hospitality:   { name: 'Hospitality',    aro: 0.09, avgBreachCost: 2940000, downtimeCost: 90000 },
+};
+
+// ─── BCDR DATA ─────────────────────────────────────────────────────────────────
+const BCDR = {
+  cold: { label: 'Cold Site', hours: 336, annualCost: 10000 },
+  warm: { label: 'Warm Site', hours: 72,  annualCost: 30000 },
+  hot:  { label: 'Hot Site',  hours: 4,   annualCost: 100000 },
+};
+
+// ─── CONTROLS ──────────────────────────────────────────────────────────────────
+const controlState = { mfa: false, phish: false, succ: false };
+
+function toggleControl(key) {
+  controlState[key] = !controlState[key];
+  const item = document.getElementById('ctrl-' + key);
+  const cb   = document.getElementById('cb-' + key);
+  item.classList.toggle('checked', controlState[key]);
+  cb.classList.toggle('checked', controlState[key]);
+}
+
+let drIncluded = true;
+function toggleDR() {
+  drIncluded = !drIncluded;
+  document.getElementById('dr-track').classList.toggle('on', drIncluded);
+  document.getElementById('dr-toggle-row').classList.toggle('checked', drIncluded);
+}
+
+function onSectorChange() {
+  const s = SECTORS[document.getElementById('sector').value];
+  document.getElementById('aro').value = s.aro;
+}
+
+function onBCDRChange() { /* live — no-op until calc */ }
+
+// ─── FORMAT HELPERS ────────────────────────────────────────────────────────────
+const fmt   = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const fmtPct = (n) => (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+const fmtK  = (n) => {
+  const a = Math.abs(n);
+  if (a >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (a >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return String(Math.round(n));
+};
+const tickFmt = (v) => {
+  const a = Math.abs(v);
+  if (a >= 1e6) return '$' + (v/1e6).toFixed(1) + 'M';
+  if (a >= 1e3) return '$' + (v/1e3).toFixed(0) + 'K';
+  return '$' + v;
+};
+
+// ─── CHARTS ────────────────────────────────────────────────────────────────────
+let barChart = null, efChart = null, aroChart = null;
+
+const CHART_DEFAULTS = {
+  color: '#4a6a8a',
+  grid: 'rgba(255,255,255,0.04)',
+  tooltip: {
+    backgroundColor: '#1a2e45',
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderWidth: 1,
+    titleColor: '#e8f0f7',
+    bodyColor: '#7a9bbf',
+  }
+};
+
+function buildBarChart(aleI, aleR) {
+  const ctx = document.getElementById('aleBarChart').getContext('2d');
+  if (barChart) barChart.destroy();
+  barChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Inherent ALE', 'Residual ALE'],
+      datasets: [{
+        data: [aleI, aleR],
+        backgroundColor: ['rgba(255,91,91,0.75)', 'rgba(0,198,162,0.75)'],
+        borderColor:     ['#ff5b5b', '#00c6a2'],
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 700, easing: 'easeInOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...CHART_DEFAULTS.tooltip, callbacks: { label: c => ' ' + fmt(c.parsed.y) } }
+      },
+      scales: {
+        x: { grid: { color: CHART_DEFAULTS.grid }, ticks: { color: CHART_DEFAULTS.color, font: { size: 12 } } },
+        y: { grid: { color: CHART_DEFAULTS.grid }, ticks: { color: CHART_DEFAULTS.color, font: { size: 11 }, callback: tickFmt } }
+      }
+    }
+  });
+}
+
+function buildEFChart(assetVal, aro) {
+  const ctx = document.getElementById('efSensChart').getContext('2d');
+  if (efChart) efChart.destroy();
+  const labels = [], data = [];
+  for (let ef = 0; ef <= 100; ef += 5) {
+    labels.push(ef);
+    data.push(Math.round(assetVal * (ef/100) * aro));
+  }
+  efChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'ALE (USD)',
+        data,
+        borderColor: '#00c6a2',
+        backgroundColor: 'rgba(0,198,162,0.08)',
+        fill: true, tension: 0.4,
+        pointRadius: 3, pointBackgroundColor: '#00c6a2', borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...CHART_DEFAULTS.tooltip, callbacks: {
+          title: (items) => 'EF: ' + items[0].label + '%',
+          label: c => ' ALE: ' + fmt(c.parsed.y)
+        }}
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Exposure Factor (%)', color: CHART_DEFAULTS.color, font: { size: 11 } },
+          grid: { color: CHART_DEFAULTS.grid }, ticks: { color: CHART_DEFAULTS.color, font: { size: 11 } }
+        },
+        y: {
+          title: { display: true, text: 'ALE (USD)', color: CHART_DEFAULTS.color, font: { size: 11 } },
+          grid: { color: CHART_DEFAULTS.grid }, ticks: { color: CHART_DEFAULTS.color, font: { size: 11 }, callback: tickFmt }
+        }
+      }
+    }
+  });
+}
+
+function buildAROChart(assetVal, ef) {
+  const ctx = document.getElementById('aroSensChart').getContext('2d');
+  if (aroChart) aroChart.destroy();
+  const labels = [], data = [];
+  const steps = 21;
+  for (let i = 0; i < steps; i++) {
+    const aro = parseFloat((i * 0.1).toFixed(1));
+    labels.push(aro.toFixed(1));
+    data.push(Math.round(assetVal * ef * aro));
+  }
+  aroChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'ALE (USD)',
+        data,
+        borderColor: '#a78bfa',
+        backgroundColor: 'rgba(167,139,250,0.08)',
+        fill: true, tension: 0.4,
+        pointRadius: 3, pointBackgroundColor: '#a78bfa', borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...CHART_DEFAULTS.tooltip, callbacks: {
+          title: (items) => 'ARO: ' + items[0].label,
+          label: c => ' ALE: ' + fmt(c.parsed.y)
+        }}
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'ARO (events/year)', color: CHART_DEFAULTS.color, font: { size: 11 } },
+          grid: { color: CHART_DEFAULTS.grid }, ticks: { color: CHART_DEFAULTS.color, font: { size: 11 } }
+        },
+        y: {
+          title: { display: true, text: 'ALE (USD)', color: CHART_DEFAULTS.color, font: { size: 11 } },
+          grid: { color: CHART_DEFAULTS.grid }, ticks: { color: CHART_DEFAULTS.color, font: { size: 11 }, callback: tickFmt }
+        }
+      }
+    }
+  });
+}
+
+// ─── MAIN CALCULATE ────────────────────────────────────────────────────────────
+let hasCalcOnce = false;
+
+function calculate() {
+  const sectorKey  = document.getElementById('sector').value;
+  const sector     = SECTORS[sectorKey];
+  const assetVal   = parseFloat(document.getElementById('asset-val').value) || 0;
+  const ef         = parseFloat(document.getElementById('ef').value) / 100 || 1;
+  const aroInput   = parseFloat(document.getElementById('aro').value) || sector.aro;
+  const revInput   = parseFloat(document.getElementById('revenue').value) || null;
+  const bcdrKey    = document.querySelector('input[name="bcdr"]:checked').value;
+  const bcdrInfo   = BCDR[bcdrKey];
+  const incDR      = drIncluded;
+
+  const avgBreachCost = revInput || sector.avgBreachCost;
+  const dtCostPerHr   = sector.downtimeCost;
+
+  // ── Core calcs
+  const sle = assetVal * ef;
+  const aleInherent = sle * aroInput;
+
+  // Control ARO adjustments
+  let aroAdj = aroInput;
+  if (controlState.mfa)   aroAdj *= 0.50;
+  if (controlState.phish) aroAdj *= 0.80;
+  const aleResidual = sle * aroAdj;
+
+  // Downtime
+  const dtColdSite  = dtCostPerHr * BCDR.cold.hours;
+  const dtSelected  = dtCostPerHr * bcdrInfo.hours;
+  const succMult    = controlState.succ ? 0.90 : 1.0;
+  const dtSelAdj    = dtSelected * succMult;
+  const bcdrSavings = Math.max(0, dtColdSite - dtSelAdj);
+
+  // Expected breach cost
+  const expectedBreachCost = avgBreachCost * aroAdj;
+
+  // Controls cost
+  let controlCosts = 0;
+  if (incDR) controlCosts += bcdrInfo.annualCost;
+  // (MFA, phishing training minimal cost — included implicitly)
+
+  // ROSI = (ALE_inherent - ALE_residual - controlCosts) / controlCosts * 100
+  const rosiNumer = aleInherent - aleResidual - (incDR ? bcdrInfo.annualCost : 0);
+  const rosi      = controlCosts > 0 ? (rosiNumer / controlCosts) * 100 : 0;
+
+  // ── Fill UI
+  document.getElementById('m-sle').textContent   = '$' + fmtK(sle);
+  document.getElementById('m-ale-i').textContent = '$' + fmtK(aleInherent);
+  document.getElementById('m-ale-r').textContent = '$' + fmtK(aleResidual);
+  document.getElementById('m-rosi').textContent  = fmtPct(rosi);
+
+  document.getElementById('r-sle').textContent    = fmt(sle) + '  (asset × EF)';
+  document.getElementById('r-ale-i').textContent  = fmt(aleInherent);
+  document.getElementById('r-ale-r').textContent  = fmt(aleResidual);
+  document.getElementById('r-breach').textContent = fmt(expectedBreachCost);
+  document.getElementById('r-bcdr').textContent   = bcdrInfo.label + '  (recovery: ' + bcdrInfo.hours + ' hrs, cost: ' + fmt(bcdrInfo.annualCost) + ')';
+  document.getElementById('r-dt-cold').textContent= fmt(dtColdSite);
+  document.getElementById('r-dt-sel').textContent = fmt(dtSelAdj);
+  document.getElementById('r-bcdr-save').textContent = fmt(bcdrSavings);
+  document.getElementById('r-ctrl-cost').textContent  = fmt(incDR ? bcdrInfo.annualCost : 0);
+  document.getElementById('r-rosi').textContent   = fmtPct(rosi);
+
+  // ── Verdict
+  const vBanner = document.getElementById('verdict-banner');
+  const vTitle  = document.getElementById('verdict-title');
+  const vText   = document.getElementById('verdict-text');
+  const vIcon   = document.getElementById('verdict-icon');
+  vBanner.className = 'verdict-banner ';
+  if (rosi > 0) {
+    vBanner.classList.add('good');
+    vTitle.textContent = '✓ ROSI is Positive';
+    vIcon.textContent = '✓';
+    vText.textContent = `Your selected controls and BCDR strategy generate a return of ${fmtPct(rosi)}. The risk reduction justifies the investment. ALE drops from ${fmt(aleInherent)} to ${fmt(aleResidual)} annually.`;
+  } else if (rosi > -50) {
+    vBanner.classList.add('warn');
+    vTitle.textContent = '⚠ Marginal ROSI';
+    vIcon.textContent = '⚠';
+    vText.textContent = `ROSI is ${fmtPct(rosi)}. Consider upgrading to a Hot Site or adding MFA to improve cost-effectiveness. Current ALE is ${fmt(aleResidual)} after controls.`;
+  } else {
+    vBanner.classList.add('bad');
+    vTitle.textContent = '✗ ROSI Not Positive';
+    vIcon.textContent = '✗';
+    vText.textContent = `ROSI is ${fmtPct(rosi)}. Re-evaluate the strategy and controls for better cost-effectiveness. The control costs outweigh the risk reduction achieved.`;
+  }
+
+  // ── Report
+  document.getElementById('report-date').textContent = 'Generated: ' + new Date().toLocaleString();
+  document.getElementById('rp-sector').textContent   = sector.name;
+  document.getElementById('rp-asset').textContent    = fmt(assetVal);
+  document.getElementById('rp-ef').textContent       = (ef * 100).toFixed(0) + '%';
+  document.getElementById('rp-aro').textContent      = aroInput.toFixed(2) + ' (per year)';
+  document.getElementById('rp-breach').textContent   = fmt(avgBreachCost);
+  document.getElementById('rp-dt').textContent       = fmt(dtCostPerHr);
+  document.getElementById('rp-sle').textContent      = fmt(sle);
+  document.getElementById('rp-ale-i').textContent    = fmt(aleInherent);
+  document.getElementById('rp-ale-r').textContent    = fmt(aleResidual);
+  document.getElementById('rp-rosi').textContent     = fmtPct(rosi);
+  document.getElementById('rp-rec').textContent      = rosi > 0 ? '✓ Maintain & optimize' : '✗ Re-evaluate strategy';
+
+  // ── Charts
+  buildBarChart(aleInherent, aleResidual);
+  buildEFChart(assetVal, aroAdj);
+  buildAROChart(assetVal, ef);
+
+  // ── Show
+  const section = document.getElementById('results-section');
+  if (!hasCalcOnce) {
+    section.classList.add('visible');
+    setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  hasCalcOnce = true;
+  document.getElementById('pdf-btn').disabled = false;
+}
+
+function resetAll() {
+  document.getElementById('sector').value    = 'retail';
+  document.getElementById('asset-val').value = '100000';
+  document.getElementById('ef').value        = '100';
+  document.getElementById('revenue').value   = '';
+  document.getElementById('aro').value       = '0.14';
+  document.querySelector('input[name="bcdr"][value="cold"]').checked = true;
+
+  ['mfa','phish','succ'].forEach(k => {
+    controlState[k] = false;
+    document.getElementById('ctrl-' + k).classList.remove('checked');
+    document.getElementById('cb-' + k).classList.remove('checked');
+  });
+
+  drIncluded = true;
+  document.getElementById('dr-track').classList.add('on');
+  document.getElementById('dr-toggle-row').classList.add('checked');
+
+  hasCalcOnce = false;
+  document.getElementById('results-section').classList.remove('visible');
+  document.getElementById('pdf-btn').disabled = true;
+}
+</script>
+</body>
+</html>

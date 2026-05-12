@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Intelligence Command Center</title>
+  
+  <!-- External Libraries via CDN -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
+  
+  <link rel="stylesheet" href="dashboard-styles.css" />
+  <style>
+    .global-tab-bar {
+      display: flex;
+      gap: 10px;
+      padding: 10px 28px;
+      background: rgba(13,27,42,0.92);
+      border-bottom: 2px solid rgba(0,198,162,0.4);
+      overflow-x: auto;
+    }
+    .global-tab-link {
+      text-decoration: none;
+      color: #7a9bbf;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .global-tab-link:hover { color: #e8f0f7; border-color: rgba(0,198,162,0.3); }
+    .global-tab-link.active {
+      color: #00c6a2;
+      border-color: rgba(0,198,162,0.3);
+      background: rgba(0,198,162,0.12);
+    }
+  </style>
+</head>
+<body>
+  <!-- ============================================
+       MAIN APPLICATION SHELL
+       ============================================ -->
+  <div class="app-container">
+    
+    <!-- TOP NAVIGATION BAR -->
+    <nav class="top-nav">
+      <div class="nav-content">
+        <div class="nav-branding">
+          <span class="nav-icon">◆</span>
+          <h1 class="nav-title">Data Intelligence Command Center</h1>
+          <span class="nav-subtitle">GraphRAG • AIOps • Red Teaming</span>
+        </div>
+        
+        <div class="nav-tabs">
+          <button class="nav-tab active" data-tab="graphrag">
+            <span class="tab-icon">▲</span> GraphRAG Risk Propagation
+          </button>
+          <button class="nav-tab" data-tab="aiops">
+            <span class="tab-icon">⚡</span> AIOps & FinOps Dashboard
+          </button>
+          <button class="nav-tab" data-tab="redteam">
+            <span class="tab-icon">🔒</span> AI Red Teaming Audit
+          </button>
+        </div>
+
+        <div class="nav-meta">
+          <span class="deployment-badge">Live • branch_V2</span>
+          <a href="./index.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 12px; margin-left: 12px;">Data Intelligence Command Center</a>
+          <a href="./ciso_budget.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px;">CISO Budget Defense</a>
+          <a href="./small_business.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px;">Small Business Reality Check</a>
+          <a href="./risk_dashboard.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px;">Cybersecurity Risk Assessment</a>
+        </div>
+      </div>
+    </nav>
+    <div style="padding: 22px 28px 10px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+      <h2 style="font-size: 36px; margin: 0; color: #e8f0f7;">GraphRAG Risk Propagation Explorer</h2>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+
+      <!-- ============================================
+           TAB 1: GRAPHRAG RISK PROPAGATION EXPLORER
+           ============================================ -->
+      <section id="graphrag-tab" class="tab-content active">
+        <div class="tab-header">
+          <h2>GraphRAG Risk Propagation Explorer</h2>
+          <p class="tab-description">
+            Visualize vulnerability propagation through interconnected assets using <strong>Neo4j</strong> relationship mapping and <strong>GraphRAG</strong> context retrieval. Select nodes to inspect risk vectors and affected systems.
+          </p>
+        </div>
+
+        <div class="graphrag-container">
+          <!-- LEFT PANEL: NETWORK VISUALIZATION -->
+          <div class="graphrag-left">
+            <div class="visualization-header">
+              <h3>Risk Network (Neo4j Graph)</h3>
+              <div class="controls-row">
+                <button class="btn-small" id="resetGraphBtn">Reset View</button>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="highlightRiskChk" checked />
+                  Highlight Risk Paths
+                </label>
+              </div>
+            </div>
+            <div id="graphNetwork" class="graph-canvas"></div>
+          </div>
+
+          <!-- RIGHT PANEL: CONTEXT & RELATIONSHIPS -->
+          <div class="graphrag-right">
+            <div class="context-panel">
+              <h3>Selected Node Context</h3>
+              <div id="nodeContextDisplay" class="context-content">
+                <div class="empty-state">
+                  <p>Click a node to explore its context depth and relationships</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- VECTOR DB SIMULATION: PINECONE/CHROMA RETRIEVAL -->
+            <div class="rag-panel">
+              <h3>Vector DB Retrieval (Pinecone/Chroma)</h3>
+              <div id="vectorRetrievalDisplay" class="rag-content">
+                <div class="empty-state">
+                  <p>RAG context will appear here based on node selection</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- RISK SCORE METER -->
+            <div class="risk-meter-panel">
+              <h3>Propagation Risk Score</h3>
+              <div class="risk-meter">
+                <div id="riskMeterFill" class="risk-meter-fill" style="width: 0%"></div>
+                <span id="riskScoreText" class="risk-score-text">0%</span>
+              </div>
+              <p id="riskDescription" class="risk-description">No node selected</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================
+           TAB 2: AIOPS & FINOPS OBSERVABILITY DASHBOARD
+           ============================================ -->
+      <section id="aiops-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>AIOps & FinOps Observability Dashboard</h2>
+          <p class="tab-description">
+            Monitor <strong>Token Efficiency</strong>, <strong>Inference Costs</strong>, and <strong>Model Routing</strong> across 10 iterations of Harness Engineering. Track automated cost optimization via <strong>liteLLM/OpenRouter</strong> orchestration and <strong>n8n/Zapier</strong> latency.
+          </p>
+        </div>
+
+        <div class="aiops-container">
+          <!-- TOP METRICS ROW -->
+          <div class="metrics-row">
+            <div class="metric-card">
+              <span class="metric-label">Avg Token Cost</span>
+              <span class="metric-value">$0.0042/1K</span>
+              <span class="metric-trend">↓ 12% vs baseline</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Total Inference Cost (10 iter)</span>
+              <span class="metric-value">$18.37</span>
+              <span class="metric-trend">✓ Within budget</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Avg Model Switch Time</span>
+              <span class="metric-value">142ms</span>
+              <span class="metric-trend">↓ Ollama local routing</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">n8n Automation Latency</span>
+              <span class="metric-value">243ms</span>
+              <span class="metric-trend">↑ 8% (acceptable)</span>
+            </div>
+          </div>
+
+          <!-- CHARTS SECTION -->
+          <div class="charts-grid">
+            <!-- CHART 1: TOKEN EFFICIENCY OVER ITERATIONS -->
+            <div class="chart-container">
+              <div class="chart-header">
+                <h3>Token Efficiency Trend</h3>
+                <span class="chart-note">Input + Output tokens per iteration</span>
+              </div>
+              <canvas id="tokenEfficiencyChart"></canvas>
+            </div>
+
+            <!-- CHART 2: INFERENCE COST BREAKDOWN -->
+            <div class="chart-container">
+              <div class="chart-header">
+                <h3>Model Routing & Cost Distribution</h3>
+                <span class="chart-note">Automated cost optimization via liteLLM</span>
+              </div>
+              <canvas id="costBreakdownChart"></canvas>
+            </div>
+
+            <!-- CHART 3: MODEL SWITCHING LOG -->
+            <div class="chart-container">
+              <div class="chart-header">
+                <h3>Model Switching Log (liteLLM/OpenRouter)</h3>
+                <span class="chart-note">Context-aware routing decisions</span>
+              </div>
+              <div class="switching-log">
+                <div id="modelSwitchingContent"></div>
+              </div>
+            </div>
+
+            <!-- CHART 4: AUTOMATION LATENCY (n8n + Zapier) -->
+            <div class="chart-container">
+              <div class="chart-header">
+                <h3>Automation Latency Metrics</h3>
+                <span class="chart-note">n8n workflow + Zapier integration delays</span>
+              </div>
+              <canvas id="latencyChart"></canvas>
+            </div>
+          </div>
+
+          <!-- COST OPTIMIZATION INSIGHTS -->
+          <div class="insights-panel">
+            <h3>🚀 AIOps Cost Optimization Insights</h3>
+            <ul class="insights-list">
+              <li><strong>Harness Engineering Applied:</strong> System routed 6/10 tasks to local <code>Ollama</code> for privacy-sensitive operations (no token cost).</li>
+              <li><strong>Context Engineering:</strong> Prompt compression reduced average input tokens by 34%, lowering per-task cost.</li>
+              <li><strong>Model Switching Strategy:</strong> High-reasoning tasks → Claude 3.5 ($0.0015/1K input); Low-reasoning tasks → Ollama ($0.00).</li>
+              <li><strong>AWS Optimization:</strong> Free Tier compliance maintained; Lambda cold starts averaged 187ms (acceptable).</li>
+              <li><strong>n8n + Zapier Integration:</strong> 98.2% uptime; automated failover to backup workflow on timeout.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================
+           TAB 3: AI RED TEAMING & SECURITY AUDIT
+           ============================================ -->
+      <section id="redteam-tab" class="tab-content">
+        <div class="tab-header">
+          <h2>AI Red Teaming & Security Audit</h2>
+          <p class="tab-description">
+            Test prompt injection, data leakage, and jailbreak attempts against the <strong>Salesforce Prompt Generator</strong>. Review <strong>Harness Engineering</strong> mitigations and <strong>MCP (Model Context Protocol)</strong> security controls.
+          </p>
+        </div>
+
+        <div class="redteam-container">
+          <!-- SUMMARY STATS -->
+          <div class="audit-stats">
+            <div class="stat-box">
+              <div class="stat-number">47</div>
+              <div class="stat-label">Attack Vectors Tested</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">46</div>
+              <div class="stat-label">Intercepted/Mitigated</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">1</div>
+              <div class="stat-label">Critical Finding</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-number">98.9%</div>
+              <div class="stat-label">Mitigation Success Rate</div>
+            </div>
+          </div>
+
+          <!-- RED TEAMING LOG TABLE -->
+          <div class="log-viewer-panel">
+            <div class="log-header">
+              <h3>Prompt Injection Audit Log</h3>
+              <div class="filter-controls">
+                <button class="filter-btn" id="filterAllBtn">All</button>
+                <button class="filter-btn" id="filterInterceptedBtn">Intercepted</button>
+                <button class="filter-btn" id="filterMitigatedBtn">Mitigated</button>
+                <button class="filter-btn" id="filterCriticalBtn">Critical</button>
+              </div>
+            </div>
+
+            <div class="log-table-wrapper">
+              <table class="log-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Attack Type</th>
+                    <th>Attempted Payload</th>
+                    <th>Status</th>
+                    <th>Mitigation Strategy</th>
+                  </tr>
+                </thead>
+                <tbody id="redTeamLogBody">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- BEFORE/AFTER CONTEXT ENGINEERING -->
+          <div class="engineering-comparison">
+            <h3>Context Engineering: Before & After</h3>
+            <div class="comparison-grid">
+              <div class="comparison-box before">
+                <h4>❌ Vulnerable (No Harness)</h4>
+                <pre><code id="beforeCode"></code></pre>
+              </div>
+              <div class="comparison-box after">
+                <h4>✓ Hardened (With Harness Engineering)</h4>
+                <pre><code id="afterCode"></code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- MCP SECURITY CONTROLS -->
+          <div class="mcp-panel">
+            <h3>MCP (Model Context Protocol) Security Framework</h3>
+            <div class="mcp-features">
+              <div class="mcp-feature">
+                <span class="mcp-icon">🔐</span>
+                <div>
+                  <strong>Sandboxed Context Execution</strong>
+                  <p>MCP servers execute all LLM context in isolated environments. Data never leaves local machine for sensitive operations.</p>
+                </div>
+              </div>
+              <div class="mcp-feature">
+                <span class="mcp-icon">🛡️</span>
+                <div>
+                  <strong>Tool-Level Access Control</strong>
+                  <p>Each MCP resource (files, APIs) has explicit allowlists. LLM cannot access resources outside defined scope.</p>
+                </div>
+              </div>
+              <div class="mcp-feature">
+                <span class="mcp-icon">📊</span>
+                <div>
+                  <strong>Audit Trail Logging</strong>
+                  <p>Every MCP request and response is logged with cryptographic signatures for compliance (HIPAA, SOC2).</p>
+                </div>
+              </div>
+              <div class="mcp-feature">
+                <span class="mcp-icon">⚡</span>
+                <div>
+                  <strong>Rate Limiting & Throttling</strong>
+                  <p>MCP applies per-resource rate limits to prevent data exfiltration via high-volume requests.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BENCHMARK RESULTS -->
+          <div class="benchmark-panel">
+            <h3>Harness Engineering Benchmark Results</h3>
+            <div class="benchmark-results">
+              <div class="benchmark-item success">
+                <span class="benchmark-icon">✓</span>
+                <div class="benchmark-details">
+                  <strong>Prompt Injection Prevention:</strong> 100% detection rate using input tokenization + semantic hashing. Attack payload example: <code>"; DROP TABLE users; --"</code> → Detected as non-Salesforce syntax.
+                </div>
+              </div>
+              <div class="benchmark-item success">
+                <span class="benchmark-icon">✓</span>
+                <div class="benchmark-details">
+                  <strong>Data Leakage Prevention:</strong> Context compression reduced token surface area by 67%. Sensitive fields (SSN, API keys) automatically masked in output.
+                </div>
+              </div>
+              <div class="benchmark-item warning">
+                <span class="benchmark-icon">⚠</span>
+                <div class="benchmark-details">
+                  <strong>Jailbreak Resistance:</strong> 97% success rate. Edge case found: Multi-turn prompt with emotional manipulation ("I'm a security researcher...") requires hardened system prompt. <em>Recommended: Implement adversarial training.</em>
+                </div>
+              </div>
+              <div class="benchmark-item success">
+                <span class="benchmark-icon">✓</span>
+                <div class="benchmark-details">
+                  <strong>Latency Under Attack:</strong> Even with 10 concurrent injection attempts, system maintained < 500ms response time. No DoS vulnerability detected.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>Data Intelligence Command Center | GraphRAG • AIOps • Red Teaming | Built with Vanilla JS + Chart.js + Vis.js</p>
+      <p class="footer-tech">Technologies: Neo4j | LangGraph | Pinecone | liteLLM | n8n | Zapier | MCP | AWS | Local Ollama</p>
+    </footer>
+
+  </div>
+
+  <script src="dashboard-logic.js"></script>
+</body>
+</html>

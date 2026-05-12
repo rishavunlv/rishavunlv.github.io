@@ -115,80 +115,68 @@
     padding: 3px 10px;
     letter-spacing: 0.3px;
   }
+  .global-tab-bar {
+    display: flex;
+    gap: 10px;
+    padding: 10px 28px;
+    background: rgba(13,27,42,0.92);
+    border-bottom: 2px solid rgba(0,198,162,0.4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow-x: auto;
+  }
+  .global-tab-link {
+    text-decoration: none;
+    color: var(--text-secondary);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .global-tab-link:hover { color: var(--text-primary); border-color: var(--border-accent); }
+  .global-tab-link.active {
+    color: var(--accent);
+    border-color: var(--border-accent);
+    background: var(--accent-dim);
+  }
+  .product-strip {
+    max-width: 920px;
+    margin: 14px auto 0;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(13,27,42,0.7);
+  }
+  .product-strip .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 7px; }
+  .product-chip { border: 1px solid var(--border); border-radius: 999px; padding: 5px 10px; font-size: 12px; color: var(--text-primary); }
+  .muted { color: var(--text-secondary); font-size: 12px; }
 
   /* LAYOUT */
   .layout {
-    display: flex;
     position: relative;
     z-index: 1;
     min-height: calc(100vh - 56px);
   }
-
-  /* SIDEBAR */
-  aside {
-    width: var(--sidebar-w);
-    flex-shrink: 0;
-    padding: 24px 0;
-    border-right: 1px solid var(--border);
-    background: rgba(13,27,42,0.5);
-    position: sticky;
-    top: 56px;
-    height: calc(100vh - 56px);
-    overflow-y: auto;
+  .page-top-heading {
+    max-width: 920px;
+    margin: 20px auto 0;
+    padding: 0 48px;
   }
-
-  .sidebar-section-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    padding: 0 20px;
-    margin-bottom: 6px;
+  .page-top-heading h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    margin: 0;
   }
-
-  .sidebar-nav { list-style: none; margin-bottom: 24px; }
-
-  .sidebar-nav li a {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 20px;
-    font-size: 13.5px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    border-left: 2px solid transparent;
-    transition: all 0.15s;
-    border-radius: 0;
-  }
-
-  .sidebar-nav li a:hover {
-    color: var(--text-primary);
-    background: rgba(255,255,255,0.04);
-    border-left-color: var(--text-muted);
-  }
-
-  .sidebar-nav li a.active {
-    color: var(--accent);
-    background: var(--accent-dim);
-    border-left-color: var(--accent);
-    font-weight: 500;
-  }
-
-  .sidebar-nav li a .icon {
-    width: 16px; height: 16px;
-    opacity: 0.6;
-    font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .sidebar-nav li a.active .icon { opacity: 1; }
 
   /* MAIN CONTENT */
   main {
-    flex: 1;
     padding: 40px 48px;
     max-width: 920px;
+    margin: 0 auto;
   }
 
   /* PAGE HEADER */
@@ -731,7 +719,6 @@
 
   /* RESPONSIVE */
   @media (max-width: 780px) {
-    aside { display: none; }
     main { padding: 24px 20px; }
     .input-grid { grid-template-columns: 1fr; }
     .metric-grid { grid-template-columns: 1fr 1fr; }
@@ -742,48 +729,28 @@
 <body>
 
 <!-- NAVBAR -->
-<nav>
-  <a class="nav-logo" href="#">
-    <div class="nav-logo-icon">🛡</div>
-    Risk Calculator
-  </a>
-  <div class="nav-spacer"></div>
-  <span class="nav-badge">CISO Tools</span>
-  <div class="nav-search">
-    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    Search…
+<div class="global-tab-bar">
+  <a class="global-tab-link" href="./index.html">Data Intelligence Command Center</a>
+  <a class="global-tab-link active" href="./ciso_budget.html">CISO Budget Defense</a>
+  <a class="global-tab-link" href="./dashboard.html">GraphRAG Risk Propagation Explorer</a>
+  <a class="global-tab-link" href="./small_business.html">Small Business Reality Check</a>
+  <a class="global-tab-link" href="./risk_dashboard.html">Cybersecurity Risk Assessment</a>
+</div>
+<div class="product-strip">
+  <div class="row"><strong>◆ Data Intelligence Command Center</strong></div>
+  <div class="row muted">GraphRAG • AIOps • Red Teaming</div>
+  <div class="row">
+    <span class="product-chip">▲ GraphRAG Risk Propagation</span>
+    <span class="product-chip">⚡ AIOps &amp; FinOps Dashboard</span>
+    <span class="product-chip">🔒 AI Red Teaming Audit</span>
   </div>
-</nav>
+  <div class="row muted"><span>Live • branch_V2</span><span>Data Intelligence</span></div>
+</div>
+<div class="page-top-heading">
+  <h1>CISO Budget Defense</h1>
+</div>
 
 <div class="layout">
-  <!-- SIDEBAR -->
-  <aside>
-    <div class="sidebar-section-label">Navigation</div>
-    <ul class="sidebar-nav">
-      <li><a href="#">
-        <span class="icon">⌂</span> Home
-      </a></li>
-      <li><a href="#">
-        <span class="icon">ℹ</span> About
-      </a></li>
-    </ul>
-
-    <div class="sidebar-section-label">Tools</div>
-    <ul class="sidebar-nav">
-      <li><a href="./ciso_budget.html" class="active">
-        <span class="icon">📊</span> CISO Budget Defense
-      </a></li>
-      <li><a href="./index.html">
-        <span class="icon">🏢</span> Small Business Check
-      </a></li>
-    </ul>
-
-    <div style="margin: 28px 20px 0; padding: 16px; background: var(--accent-dim); border: 1px solid var(--border-accent); border-radius: 10px;">
-      <div style="font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.6px; margin-bottom: 6px;">PRO TIP</div>
-      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">Adjust sliders in real-time to see how recovery time affects ROI instantly.</div>
-    </div>
-  </aside>
-
   <!-- MAIN -->
   <main>
     <div class="page-header">

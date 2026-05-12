@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cybersecurity Risk BI Dashboard</title>
+  <link rel="stylesheet" href="risk_styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    .global-tab-bar {
+      display: flex;
+      gap: 10px;
+      padding: 10px 28px;
+      background: rgba(13,27,42,0.92);
+      border-bottom: 2px solid rgba(0,198,162,0.4);
+      overflow-x: auto;
+    }
+    .global-tab-link {
+      text-decoration: none;
+      color: #7a9bbf;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .global-tab-link:hover { color: #e8f0f7; border-color: rgba(0,198,162,0.3); }
+    .global-tab-link.active {
+      color: #00c6a2;
+      border-color: rgba(0,198,162,0.3);
+      background: rgba(0,198,162,0.12);
+    }
+    .product-strip {
+      margin: 14px 28px 0;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      background: rgba(13,27,42,0.7);
+    }
+    .product-strip .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 7px; }
+    .product-chip { border: 1px solid rgba(255,255,255,0.14); border-radius: 999px; padding: 5px 10px; font-size: 12px; color: #e8f0f7; }
+    .muted { color: #7a9bbf; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="global-tab-bar">
+    <a class="global-tab-link" href="./index.html">Data Intelligence Command Center</a>
+    <a class="global-tab-link" href="./ciso_budget.html">CISO Budget Defense</a>
+    <a class="global-tab-link" href="./dashboard.html">GraphRAG Risk Propagation Explorer</a>
+    <a class="global-tab-link" href="./small_business.html">Small Business Reality Check</a>
+    <a class="global-tab-link active" href="./risk_dashboard.html">Cybersecurity Risk Assessment</a>
+  </div>
+  <div class="product-strip">
+    <div class="row"><strong>◆ Data Intelligence Command Center</strong></div>
+    <div class="row muted">GraphRAG • AIOps • Red Teaming</div>
+    <div class="row">
+      <span class="product-chip">▲ GraphRAG Risk Propagation</span>
+      <span class="product-chip">⚡ AIOps &amp; FinOps Dashboard</span>
+      <span class="product-chip">🔒 AI Red Teaming Audit</span>
+    </div>
+    <div class="row muted"><span>Live • branch_V2</span><span>Data Intelligence</span></div>
+  </div>
+  <header class="top-header" style="padding: 24px 28px 10px;">
+    <h2 style="font-size: 36px; margin: 0;">Cybersecurity Risk Assessment</h2>
+    <p style="margin-top: 8px;">GraphRAG + AIOps + Red Teaming for board-ready decisions.</p>
+  </header>
+  <div class="dashboard-shell">
+    <aside class="sidebar">
+      <h1>SOC Risk BI</h1>
+      <p class="subtitle">Defensible Security Budget</p>
+
+      <label for="sectorSelect">Sector Selection</label>
+      <select id="sectorSelect">
+        <option value="healthcare">Healthcare</option>
+        <option value="finance" selected>Finance</option>
+        <option value="retail">Retail</option>
+        <option value="public">Public Sector</option>
+      </select>
+
+      <div class="kpi-card">
+        <h3>Security Posture</h3>
+        <p>Current Risk Index: <span id="riskIndex" class="danger">74</span></p>
+        <p>Projected ROSI: <span id="rosiHeadline" class="safe">+31%</span></p>
+        <p>Inference Spend Delta: <span id="inferenceDelta" class="safe">-58%</span></p>
+      </div>
+
+      <button id="runAuditBtn" class="primary">Run Audit</button>
+
+      <div class="audit-log">
+        <h3>LangGraph Audit State</h3>
+        <ul id="auditSteps">
+          <li>Idle</li>
+        </ul>
+      </div>
+
+      <div class="mcp-note">
+        <h3>MCP Ingestion</h3>
+        <p>
+          Local vulnerability logs are securely ingested through MCP (Model Context Protocol)
+          servers before analytics are rendered in this static dashboard.
+        </p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header" style="display:none;">
+        <h2>Cybersecurity Risk Assessment</h2>
+        <p>GraphRAG + AIOps + Red Teaming for board-ready decisions.</p>
+      </header>
+
+      <nav class="tabs">
+        <button class="tab-link active" data-tab="tab-graphrag">GraphRAG Threat Propagation</button>
+        <button class="tab-link" data-tab="tab-aiops">AIOps FinOps & Mitigation</button>
+        <button class="tab-link" data-tab="tab-governance">Adversarial AI Governance</button>
+      </nav>
+
+      <section id="tab-graphrag" class="tab-panel active">
+        <div class="panel-header">
+          <h3>Attack Path Network (Neo4j-style Export)</h3>
+          <p>Visualizing exploit chains from compromised prompts to budget data exfiltration.</p>
+        </div>
+        <div id="threatGraph" class="graph-surface"></div>
+        <div class="legend">
+          <span><i class="legend-dot safe"></i> Low Risk Node</span>
+          <span><i class="legend-dot warning"></i> Medium Risk Node</span>
+          <span><i class="legend-dot danger"></i> High Risk Node</span>
+        </div>
+      </section>
+
+      <section id="tab-aiops" class="tab-panel">
+        <div class="panel-header">
+          <h3>ALE vs Control Spend and ROSI Trend</h3>
+          <p>12-month projection of financial risk and mitigation effectiveness.</p>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <canvas id="rosiChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <canvas id="inferenceChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-governance" class="tab-panel">
+        <div class="panel-header">
+          <h3>Adversarial Drill Outcomes & Harness Engineering</h3>
+          <p>Prompt safety scores before and after context engineering hardening.</p>
+        </div>
+        <div class="table-wrap">
+          <table id="drillTable">
+            <thead>
+              <tr>
+                <th>Drill ID</th>
+                <th>Attack Scenario</th>
+                <th>Target Component</th>
+                <th>Safety Score (Before)</th>
+                <th>Safety Score (After)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="sector-data.js"></script>
+  <script src="risk_logic.js"></script>
+</body>
+</html>
