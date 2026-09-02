@@ -74,7 +74,7 @@ const masterRiskDataset = {
 
 const riskColors = {
   low: "#00c6a2",
-  medium: "#f7b731",
+  medium: "#f5a623",
   high: "#ff5b5b"
 };
 
@@ -108,14 +108,14 @@ function getSectorNodes(sector) {
     label: `${node.label}\n${node.metadata}`,
     shape: "box",
     color: {
-      background: "#121c31",
+      background: "#122238",
       border: riskColors[node.risk],
       highlight: {
-        background: "#192741",
+        background: "#1c3454",
         border: riskColors[node.risk]
       }
     },
-    font: { color: "#dbe5ff", size: 12 },
+    font: { color: "#f6f9fc", size: 12 },
     margin: 10
   }));
 }
@@ -133,8 +133,8 @@ function getSectorEdges(sector) {
         to: toNode,
         label: edge.label,
         arrows: "to",
-        color: { color: "#4f6aa0" },
-        font: { color: "#9db0dc", size: 10 },
+        color: { color: "#7c9bc0" },
+        font: { color: "#9fb8d4", size: 10 },
         smooth: true
       };
     })
@@ -181,8 +181,8 @@ function createRosiChart() {
         {
           label: "Control Cost (USD M)",
           data: benchmark.controlCost,
-          borderColor: "#4d7de8",
-          backgroundColor: "rgba(77, 125, 232, 0.15)",
+          borderColor: "#4f8ff0",
+          backgroundColor: "rgba(79, 143, 240, 0.15)",
           tension: 0.25
         },
         {
@@ -198,20 +198,20 @@ function createRosiChart() {
     options: {
       maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: "#c9d7fa" } }
+        legend: { labels: { color: "#9fb8d4" } }
       },
       scales: {
-        x: { ticks: { color: "#9bb0db" }, grid: { color: "#1f3056" } },
+        x: { ticks: { color: "#9fb8d4" }, grid: { color: "rgba(255,255,255,0.07)" } },
         y: {
-          ticks: { color: "#9bb0db" },
-          grid: { color: "#1f3056" },
-          title: { display: true, text: "USD M", color: "#9bb0db" }
+          ticks: { color: "#9fb8d4" },
+          grid: { color: "rgba(255,255,255,0.07)" },
+          title: { display: true, text: "USD M", color: "#9fb8d4" }
         },
         y1: {
           position: "right",
-          ticks: { color: "#9bb0db" },
+          ticks: { color: "#9fb8d4" },
           grid: { drawOnChartArea: false },
-          title: { display: true, text: "ROSI %", color: "#9bb0db" }
+          title: { display: true, text: "ROSI %", color: "#9fb8d4" }
         }
       }
     }
@@ -238,15 +238,15 @@ function createInferenceChart() {
     options: {
       maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: "#c9d7fa" } }
+        legend: { labels: { color: "#9fb8d4" } }
       },
       scales: {
-        x: { ticks: { color: "#9bb0db" }, grid: { color: "#1f3056" } },
+        x: { ticks: { color: "#9fb8d4" }, grid: { color: "rgba(255,255,255,0.07)" } },
         y: {
           min: 0,
           max: 100,
-          ticks: { color: "#9bb0db" },
-          grid: { color: "#1f3056" }
+          ticks: { color: "#9fb8d4" },
+          grid: { color: "rgba(255,255,255,0.07)" }
         }
       }
     }

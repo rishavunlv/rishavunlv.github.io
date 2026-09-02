@@ -1,3 +1,8 @@
+/* Page-specific styles for risk_dashboard.html. Palette, text, and
+   border colors all come from suite-tokens.css (linked before this
+   file) — no hardcoded hex here, so this page stays in lockstep with
+   the rest of the suite's dark-blue / white theme. */
+
 * {
   box-sizing: border-box;
 }
@@ -5,8 +10,8 @@
 body {
   margin: 0;
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #0b0f19;
-  color: #d9e1f2;
+  background: var(--navy-deep);
+  color: var(--text-primary);
 }
 
 .dashboard-shell {
@@ -16,19 +21,20 @@ body {
 }
 
 .sidebar {
-  border-right: 1px solid #1f2a44;
+  border-right: 1px solid var(--border);
   padding: 20px;
-  background: #0f1524;
+  background: var(--navy);
 }
 
 .sidebar h1 {
   margin: 0;
   font-size: 1.35rem;
+  color: var(--text-primary);
 }
 
 .subtitle {
   margin-top: 6px;
-  color: #95a3c9;
+  color: var(--text-secondary);
 }
 
 label {
@@ -36,24 +42,24 @@ label {
   margin-top: 18px;
   margin-bottom: 8px;
   font-size: 0.92rem;
-  color: #9fb0db;
+  color: var(--text-secondary);
 }
 
 select {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid #2b3a5f;
-  background: #111a2d;
-  color: #d9e1f2;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .kpi-card,
 .audit-log,
 .mcp-note {
   margin-top: 18px;
-  background: #121c31;
-  border: 1px solid #1d2b4f;
+  background: var(--card-bg-solid);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px;
 }
@@ -62,20 +68,25 @@ select {
 .audit-log h3,
 .mcp-note h3 {
   margin-top: 0;
+  color: var(--text-primary);
+}
+
+.mcp-note p {
+  color: var(--text-secondary);
 }
 
 .safe {
-  color: #00c6a2;
+  color: var(--accent);
   font-weight: 600;
 }
 
 .danger {
-  color: #ff5b5b;
+  color: var(--danger);
   font-weight: 600;
 }
 
 .warning {
-  color: #f7b731;
+  color: var(--amber);
 }
 
 .primary {
@@ -84,8 +95,8 @@ select {
   padding: 11px;
   border: none;
   border-radius: 8px;
-  background: #00c6a2;
-  color: #061018;
+  background: var(--accent);
+  color: var(--on-accent);
   font-weight: 700;
   cursor: pointer;
 }
@@ -97,6 +108,7 @@ select {
 #auditSteps {
   margin: 0;
   padding-left: 18px;
+  color: var(--text-secondary);
 }
 
 .main-content {
@@ -105,11 +117,12 @@ select {
 
 .top-header h2 {
   margin-bottom: 6px;
+  color: var(--text-primary);
 }
 
 .top-header p {
   margin-top: 0;
-  color: #90a0c7;
+  color: var(--text-secondary);
 }
 
 .tabs {
@@ -119,24 +132,33 @@ select {
 }
 
 .tab-link {
-  border: 1px solid #24365e;
-  background: #101a31;
-  color: #bdd0ff;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-secondary);
   border-radius: 8px;
   padding: 9px 13px;
   cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-link:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .tab-link.active {
-  background: #17305a;
-  color: #ffffff;
-  border-color: #2f5cab;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--border-accent);
 }
 
 .tab-panel {
   display: none;
-  background: #0f172b;
-  border: 1px solid #1a2a49;
+  background: var(--card-bg-solid);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px;
 }
@@ -147,26 +169,27 @@ select {
 
 .panel-header h3 {
   margin-bottom: 6px;
+  color: var(--text-primary);
 }
 
 .panel-header p {
   margin-top: 0;
-  color: #91a3cb;
+  color: var(--text-secondary);
 }
 
 .graph-surface {
   width: 100%;
   height: 460px;
   border-radius: 10px;
-  border: 1px solid #1f2f54;
-  background: #0a1120;
+  border: 1px solid var(--border);
+  background: var(--navy);
 }
 
 .legend {
   display: flex;
   gap: 16px;
   margin-top: 12px;
-  color: #aebee5;
+  color: var(--text-secondary);
 }
 
 .legend-dot {
@@ -178,15 +201,15 @@ select {
 }
 
 .legend-dot.safe {
-  background: #00c6a2;
+  background: var(--accent);
 }
 
 .legend-dot.warning {
-  background: #f7b731;
+  background: var(--amber);
 }
 
 .legend-dot.danger {
-  background: #ff5b5b;
+  background: var(--danger);
 }
 
 .chart-grid {
@@ -196,8 +219,8 @@ select {
 }
 
 .chart-card {
-  background: #0a1223;
-  border: 1px solid #1f3056;
+  background: var(--card-bg-solid);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px;
   min-height: 330px;
@@ -214,15 +237,16 @@ table {
 
 th,
 td {
-  border-bottom: 1px solid #1e2f55;
+  border-bottom: 1px solid var(--border);
   text-align: left;
   padding: 10px 8px;
   font-size: 0.92rem;
+  color: var(--text-primary);
 }
 
 th {
-  color: #a9bce8;
-  background: #121f3a;
+  color: var(--text-secondary);
+  background: var(--navy-mid);
 }
 
 td:last-child {
