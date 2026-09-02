@@ -7,36 +7,37 @@
    ============================================ */
 
 :root {
-  /* Base surfaces */
-  --navy: #0d1b2a;
-  --navy-mid: #1a2e45;
-  --navy-light: #243d59;
-  --navy-deep: #0a1120;
+  /* Base surfaces — deep, saturated blue-black. Never pure black. */
+  --navy: #0a1526;
+  --navy-mid: #122238;
+  --navy-light: #1c3454;
+  --navy-deep: #060c16;
 
   /* Accent (locked suite-wide, do not diverge per page) */
   --accent: #00c6a2;
-  --accent-dim: rgba(0, 198, 162, 0.12);
-  --accent-glow: rgba(0, 198, 162, 0.25);
+  --accent-dim: rgba(0, 198, 162, 0.14);
+  --accent-glow: rgba(0, 198, 162, 0.28);
+  --on-accent: #060c16;
 
   /* Status */
   --danger: #ff5b5b;
-  --danger-dim: rgba(255, 91, 91, 0.12);
+  --danger-dim: rgba(255, 91, 91, 0.14);
   --amber: #f5a623;
-  --amber-dim: rgba(245, 166, 35, 0.12);
+  --amber-dim: rgba(245, 166, 35, 0.14);
   --success: #10c981;
-  --success-dim: rgba(16, 201, 129, 0.12);
+  --success-dim: rgba(16, 201, 129, 0.14);
 
-  /* Text */
-  --text-primary: #e8f0f7;
-  --text-secondary: #7a9bbf;
-  --text-muted: #4a6a8a;
+  /* Text — white-forward, tuned for AA/AAA contrast on the deep navy base */
+  --text-primary: #f6f9fc;
+  --text-secondary: #9fb8d4;
+  --text-muted: #7c9bc0;
 
   /* Structure */
-  --border: rgba(255, 255, 255, 0.07);
-  --border-accent: rgba(0, 198, 162, 0.3);
-  --card-bg: rgba(26, 46, 69, 0.6);
-  --card-bg-solid: #1a2e45;
-  --input-bg: rgba(13, 27, 42, 0.8);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-accent: rgba(0, 198, 162, 0.35);
+  --card-bg: rgba(18, 34, 56, 0.66);
+  --card-bg-solid: #122238;
+  --input-bg: rgba(6, 12, 22, 0.85);
 
   /* Radii (shape-consistency lock) */
   --radius-sm: 8px;
@@ -72,7 +73,7 @@
   top: 0;
   z-index: 200;
   min-height: 60px;
-  background: rgba(11, 19, 31, 0.94);
+  background: rgba(6, 12, 22, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
@@ -100,14 +101,14 @@
   width: 26px;
   height: 26px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, var(--accent), #0099cc);
+  background: linear-gradient(135deg, var(--accent), #00a381);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #06251f;
+  color: var(--on-accent);
   flex-shrink: 0;
 }
-.suite-nav-mark .icon { stroke: #06251f; width: 15px; height: 15px; }
+.suite-nav-mark .icon { stroke: var(--on-accent); width: 15px; height: 15px; }
 
 .suite-nav-links {
   display: flex;
