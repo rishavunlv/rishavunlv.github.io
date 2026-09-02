@@ -8,26 +8,11 @@
 <link rel="stylesheet" href="suite-tokens.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+  /* Palette/type/radii come from suite-tokens.css. Only page-unique
+     tokens (not part of the shared system) are declared here. */
   :root {
-    --navy: #0d1b2a;
-    --navy-mid: #1a2e45;
-    --navy-light: #243d59;
-    --accent: #00c6a2;
-    --accent-dim: rgba(0,198,162,0.12);
-    --accent-glow: rgba(0,198,162,0.25);
-    --danger: #ff5b5b;
-    --danger-dim: rgba(255,91,91,0.12);
-    --amber: #f5a623;
-    --amber-dim: rgba(245,166,35,0.12);
     --purple: #a78bfa;
     --purple-dim: rgba(167,139,250,0.12);
-    --text-primary: #e8f0f7;
-    --text-secondary: #7a9bbf;
-    --text-muted: #4a6a8a;
-    --border: rgba(255,255,255,0.07);
-    --border-accent: rgba(0,198,162,0.3);
-    --card-bg: rgba(26,46,69,0.6);
-    --input-bg: rgba(13,27,42,0.8);
     --sidebar-w: 240px;
   }
 
@@ -162,12 +147,12 @@
 
   select {
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a6a8a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237c9bc0' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
     padding-right: 36px;
   }
-  select option { background: #1a2e45; }
+  select option { background: #122238; }
 
   /* ARO hint */
   .aro-note {
@@ -241,7 +226,7 @@
   .control-item.checked .control-cb::after {
     content: ''; position: absolute;
     width: 5px; height: 9px;
-    border: 2px solid #0d1b2a; border-top: none; border-left: none;
+    border: 2px solid #060c16; border-top: none; border-left: none;
     transform: rotate(45deg) translate(-1px, -1px);
   }
   .control-info { flex: 1; }
@@ -291,7 +276,7 @@
     display: flex; align-items: center; gap: 8px;
     border: none; letter-spacing: 0.1px;
   }
-  .btn-primary { background: var(--amber); color: #0d1b2a; }
+  .btn-primary { background: var(--amber); color: #060c16; }
   .btn-primary:hover { background: #ffba42; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,166,35,0.3); }
   .btn-primary:active { transform: none; box-shadow: none; }
   .btn-outline {
@@ -792,14 +777,14 @@ const tickFmt = (v) => {
 let barChart = null, efChart = null, aroChart = null;
 
 const CHART_DEFAULTS = {
-  color: '#4a6a8a',
+  color: '#7c9bc0',
   grid: 'rgba(255,255,255,0.04)',
   tooltip: {
-    backgroundColor: '#1a2e45',
+    backgroundColor: '#122238',
     borderColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
-    titleColor: '#e8f0f7',
-    bodyColor: '#7a9bbf',
+    titleColor: '#f6f9fc',
+    bodyColor: '#9fb8d4',
   }
 };
 
