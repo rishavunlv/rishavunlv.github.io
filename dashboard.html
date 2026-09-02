@@ -3,82 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Data Intelligence Command Center</title>
-  
+  <title>GraphRAG Risk Propagation Explorer | Cyber Risk Suite</title>
+
   <!-- External Libraries via CDN -->
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet" type="text/css" />
-  
+
+  <link rel="stylesheet" href="suite-tokens.css" />
   <link rel="stylesheet" href="dashboard-styles.css" />
-  <style>
-    .global-tab-bar {
-      display: flex;
-      gap: 10px;
-      padding: 10px 28px;
-      background: rgba(13,27,42,0.92);
-      border-bottom: 2px solid rgba(0,198,162,0.4);
-      overflow-x: auto;
-    }
-    .global-tab-link {
-      text-decoration: none;
-      color: #7a9bbf;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-radius: 999px;
-      padding: 7px 13px;
-      font-size: 12.5px;
-      font-weight: 700;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .global-tab-link:hover { color: #e8f0f7; border-color: rgba(0,198,162,0.3); }
-    .global-tab-link.active {
-      color: #00c6a2;
-      border-color: rgba(0,198,162,0.3);
-      background: rgba(0,198,162,0.12);
-    }
-  </style>
 </head>
 <body>
   <!-- ============================================
        MAIN APPLICATION SHELL
        ============================================ -->
   <div class="app-container">
-    
-    <!-- TOP NAVIGATION BAR -->
-    <nav class="top-nav">
-      <div class="nav-content">
-        <div class="nav-branding">
-          <span class="nav-icon">◆</span>
-          <h1 class="nav-title">Data Intelligence Command Center</h1>
-          <span class="nav-subtitle">GraphRAG • AIOps • Red Teaming</span>
-        </div>
-        
-        <div class="nav-tabs">
-          <button class="nav-tab active" data-tab="graphrag">
-            <span class="tab-icon">▲</span> GraphRAG Risk Propagation
-          </button>
-          <button class="nav-tab" data-tab="aiops">
-            <span class="tab-icon">⚡</span> AIOps & FinOps Dashboard
-          </button>
-          <button class="nav-tab" data-tab="redteam">
-            <span class="tab-icon">🔒</span> AI Red Teaming Audit
-          </button>
-        </div>
 
-        <div class="nav-meta">
-          <span class="deployment-badge">Live • branch_V2</span>
-          <a href="./index.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 12px; margin-left: 12px;">Data Intelligence Command Center</a>
-          <a href="./ciso_budget.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px;">CISO Budget Defense</a>
-          <a href="./small_business.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px;">Small Business Reality Check</a>
-          <a href="./risk_dashboard.html" style="color: var(--text-secondary); text-decoration: none; font-size: 12px;">Cybersecurity Risk Assessment</a>
-        </div>
-      </div>
-    </nav>
-    <div style="padding: 22px 28px 10px; border-bottom: 1px solid rgba(255,255,255,0.08);">
-      <h2 style="font-size: 36px; margin: 0; color: #e8f0f7;">GraphRAG Risk Propagation Explorer</h2>
+    <!-- SUITE NAVIGATION -->
+    <header class="suite-nav">
+      <a class="suite-nav-brand" href="./index.html">
+        <span class="suite-nav-mark"><svg class="icon" aria-hidden="true"><use href="icons.svg#icon-shield"></use></svg></span>
+        Cyber Risk Suite
+      </a>
+      <nav class="suite-nav-links">
+        <a class="suite-nav-link" href="./index.html">About</a>
+        <a class="suite-nav-link" href="./small_business.html">Small Business Check</a>
+        <a class="suite-nav-link" href="./ciso_budget.html">CISO Budget</a>
+        <a class="suite-nav-link active" href="./dashboard.html">Risk Explorer</a>
+        <a class="suite-nav-link" href="./risk_dashboard.html">Risk Assessment</a>
+      </nav>
+    </header>
+
+    <div class="page-title-row">
+      <h2>GraphRAG Risk Propagation Explorer</h2>
     </div>
+
+    <!-- MODULE TABS (in-page views: GraphRAG / AIOps / Red Teaming) -->
+    <nav class="module-tabs">
+      <button class="nav-tab active" data-tab="graphrag">
+        <span class="tab-icon"><svg class="icon" aria-hidden="true"><use href="icons.svg#icon-graph"></use></svg></span> GraphRAG Risk Propagation
+      </button>
+      <button class="nav-tab" data-tab="aiops">
+        <span class="tab-icon"><svg class="icon" aria-hidden="true"><use href="icons.svg#icon-bolt"></use></svg></span> AIOps &amp; FinOps Dashboard
+      </button>
+      <button class="nav-tab" data-tab="redteam">
+        <span class="tab-icon"><svg class="icon" aria-hidden="true"><use href="icons.svg#icon-lock"></use></svg></span> AI Red Teaming Audit
+      </button>
+    </nav>
 
     <!-- MAIN CONTENT AREA -->
     <main class="main-content">
@@ -384,7 +356,7 @@
 
     <!-- FOOTER -->
     <footer class="app-footer">
-      <p>Data Intelligence Command Center | GraphRAG • AIOps • Red Teaming | Built with Vanilla JS + Chart.js + Vis.js</p>
+      <p>Cyber Risk Suite | GraphRAG Risk Propagation Explorer | Built with Vanilla JS, Chart.js, and Vis.js</p>
       <p class="footer-tech">Technologies: Neo4j | LangGraph | Pinecone | liteLLM | n8n | Zapier | MCP | AWS | Local Ollama</p>
     </footer>
 
