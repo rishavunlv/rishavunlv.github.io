@@ -1,0 +1,149 @@
+/* ============================================
+   CYBER RISK SUITE — SHARED DESIGN TOKENS
+   Single source of truth for palette, type scale,
+   radii, and the suite-wide navigation component.
+   Linked by index.html, small_business.html,
+   ciso_budget.html, dashboard.html, risk_dashboard.html.
+   ============================================ */
+
+:root {
+  /* Base surfaces */
+  --navy: #0d1b2a;
+  --navy-mid: #1a2e45;
+  --navy-light: #243d59;
+  --navy-deep: #0a1120;
+
+  /* Accent (locked suite-wide, do not diverge per page) */
+  --accent: #00c6a2;
+  --accent-dim: rgba(0, 198, 162, 0.12);
+  --accent-glow: rgba(0, 198, 162, 0.25);
+
+  /* Status */
+  --danger: #ff5b5b;
+  --danger-dim: rgba(255, 91, 91, 0.12);
+  --amber: #f5a623;
+  --amber-dim: rgba(245, 166, 35, 0.12);
+  --success: #10c981;
+  --success-dim: rgba(16, 201, 129, 0.12);
+
+  /* Text */
+  --text-primary: #e8f0f7;
+  --text-secondary: #7a9bbf;
+  --text-muted: #4a6a8a;
+
+  /* Structure */
+  --border: rgba(255, 255, 255, 0.07);
+  --border-accent: rgba(0, 198, 162, 0.3);
+  --card-bg: rgba(26, 46, 69, 0.6);
+  --card-bg-solid: #1a2e45;
+  --input-bg: rgba(13, 27, 42, 0.8);
+
+  /* Radii (shape-consistency lock) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Type */
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+/* ============================================
+   ICON UTILITY
+   Pairs with icons.svg (inline <use> references).
+   One stroke-based line-icon family, one weight.
+   ============================================ */
+.icon {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  vertical-align: -3px;
+  flex-shrink: 0;
+}
+.icon-lg { width: 22px; height: 22px; }
+
+/* ============================================
+   SUITE NAVIGATION (shared across all 5 pages)
+   ============================================ */
+.suite-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  min-height: 60px;
+  background: rgba(11, 19, 31, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 28px;
+  gap: 18px;
+  font-family: var(--font-sans);
+}
+
+.suite-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.2px;
+  color: var(--text-primary);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.suite-nav-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), #0099cc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #06251f;
+  flex-shrink: 0;
+}
+.suite-nav-mark .icon { stroke: #06251f; width: 15px; height: 15px; }
+
+.suite-nav-links {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  flex-wrap: wrap;
+  overflow-x: auto;
+}
+
+.suite-nav-link {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.suite-nav-link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.suite-nav-link.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+@media (max-width: 860px) {
+  .suite-nav {
+    height: auto;
+    padding: 12px 18px;
+  }
+  .suite-nav-links {
+    width: 100%;
+  }
+}
