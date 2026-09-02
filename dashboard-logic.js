@@ -423,7 +423,7 @@ function renderGraphRagExplorer() {
     shape: node.group === "budget" ? "box" : "dot",
     size: node.group === "budget" ? 28 : 22,
     font: {
-      color: "#e8f0f7",
+      color: "#f6f9fc",
       face: "DM Sans",
       size: 13,
       bold: { color: "#ffffff" }
@@ -441,7 +441,7 @@ function renderGraphRagExplorer() {
     arrows: "to",
     smooth: { type: "dynamic" },
     font: {
-      color: "#7a9bbf",
+      color: "#9fb8d4",
       size: 11,
       align: "middle"
     }
@@ -629,25 +629,25 @@ function renderAiopsCharts() {
     plugins: {
       legend: {
         labels: {
-          color: "#e8f0f7",
+          color: "#f6f9fc",
           font: { family: "DM Sans", size: 12 }
         }
       },
       tooltip: {
         backgroundColor: "rgba(13,27,42,0.95)",
-        titleColor: "#e8f0f7",
-        bodyColor: "#7a9bbf",
+        titleColor: "#f6f9fc",
+        bodyColor: "#9fb8d4",
         borderColor: "rgba(0,198,162,0.3)",
         borderWidth: 1
       }
     },
     scales: {
       x: {
-        ticks: { color: "#7a9bbf" },
+        ticks: { color: "#9fb8d4" },
         grid: { color: "rgba(0,198,162,0.1)" }
       },
       y: {
-        ticks: { color: "#7a9bbf" },
+        ticks: { color: "#9fb8d4" },
         grid: { color: "rgba(0,198,162,0.1)" }
       }
     }
@@ -748,7 +748,7 @@ function populateModelSwitchingLog() {
           <span style="color: #00c6a2; font-weight: 600;">${entry.iteration}</span>
           <span style="color: #f5a623; font-weight: 600;">Cost: ${entry.cost}</span>
         </div>
-        <div style="color: #7a9bbf; font-size: 12px; line-height: 1.4;">
+        <div style="color: #9fb8d4; font-size: 12px; line-height: 1.4;">
           <strong>Model:</strong> ${entry.model}<br/>
           <strong>Reason:</strong> ${entry.reason}<br/>
           <strong>Engineering:</strong> ${entry.reasoning}
@@ -861,7 +861,7 @@ function filterRedTeamingByStatus(status) {
     )
     .join("");
 
-  tableBody.innerHTML = html || '<tr><td colspan="5" style="text-align: center; color: #7a9bbf;">No results</td></tr>';
+  tableBody.innerHTML = html || '<tr><td colspan="5" style="text-align: center; color: #9fb8d4;">No results</td></tr>';
 }
 
 function setActiveFilterBtn(activeBtn) {

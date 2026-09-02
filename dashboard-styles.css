@@ -1,32 +1,34 @@
 /* ============================================
-   DATA INTELLIGENCE COMMAND CENTER - STYLESHEET
-   Professional BI Dashboard with Antigravity Dark Theme
+   CYBER RISK SUITE - GRAPHRAG RISK PROPAGATION EXPLORER
+   Page-specific styles. Palette/text/border tokens are
+   kept in sync with suite-tokens.css (see that file for
+   the single source of truth on color values).
    ============================================ */
 
 :root {
   /* Primary Colors */
-  --navy-bg: #0b0f19;
-  --navy-mid: #1a2e45;
-  --navy-light: #243d59;
-  
+  --navy-bg: #060c16;
+  --navy-mid: #122238;
+  --navy-light: #1c3454;
+
   /* Accent Colors */
   --teal: #00c6a2;
   --teal-dark: #00a381;
   --amber: #f5a623;
   --danger: #ff5b5b;
   --success: #10c981;
-  
+
   /* Text Colors */
-  --text-primary: #e8f0f7;
-  --text-secondary: #7a9bbf;
-  --text-muted: #4a6a8a;
-  
+  --text-primary: #f6f9fc;
+  --text-secondary: #9fb8d4;
+  --text-muted: #7c9bc0;
+
   /* UI Elements */
-  --border-color: rgba(255, 255, 255, 0.07);
-  --border-accent: rgba(0, 198, 162, 0.3);
-  --bg-card: rgba(26, 46, 69, 0.6);
-  --bg-input: rgba(13, 27, 42, 0.8);
-  
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-accent: rgba(0, 198, 162, 0.35);
+  --bg-card: rgba(18, 34, 56, 0.66);
+  --bg-input: rgba(6, 12, 22, 0.85);
+
   /* Spacing & Layout */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -51,7 +53,7 @@ html {
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at top right, #1a3a52 0%, var(--navy-bg) 50%);
+  background: radial-gradient(circle at top right, #1c3454 0%, var(--navy-bg) 50%);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
