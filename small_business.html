@@ -478,29 +478,29 @@
       <div class="divider"></div>
 
       <!-- BCDR -->
-      <div class="section-label">BCDR Strategy</div>
+      <div class="section-label">Backup Strategy</div>
       <div class="bcdr-grid">
         <div class="bcdr-option">
           <input type="radio" name="bcdr" id="cold" value="cold" checked onchange="onBCDRChange()">
           <label for="cold">
-            <span class="bcdr-icon">❄</span>
-            Cold Site
+            <span class="bcdr-icon">💾</span>
+            Offline Backup
             <span class="bcdr-meta">336 hr recovery · $10k/yr</span>
           </label>
         </div>
         <div class="bcdr-option">
           <input type="radio" name="bcdr" id="warm" value="warm" onchange="onBCDRChange()">
           <label for="warm">
-            <span class="bcdr-icon">🌡</span>
-            Warm Site
+            <span class="bcdr-icon">☁</span>
+            Online Backup
             <span class="bcdr-meta">72 hr recovery · $30k/yr</span>
           </label>
         </div>
         <div class="bcdr-option">
           <input type="radio" name="bcdr" id="hot" value="hot" onchange="onBCDRChange()">
           <label for="hot">
-            <span class="bcdr-icon">🔥</span>
-            Hot Site
+            <span class="bcdr-icon">⚡</span>
+            Managed Backup
             <span class="bcdr-meta">4 hr recovery · $100k/yr</span>
           </label>
         </div>
@@ -624,7 +624,7 @@
             <td id="r-bcdr">—</td>
           </tr>
           <tr>
-            <td><span class="tag tag-calc">Calc</span>Downtime Loss - Cold Site (baseline)</td>
+            <td><span class="tag tag-calc">Calc</span>Downtime Loss - Offline Backup (baseline)</td>
             <td id="r-dt-cold">—</td>
           </tr>
           <tr>
@@ -718,18 +718,18 @@
 const SECTORS = {
   retail:        { name: 'Retail',         aro: 0.14, avgBreachCost: 2500000, downtimeCost: 200000 },
   healthcare:    { name: 'Healthcare',     aro: 0.22, avgBreachCost: 10900000, downtimeCost: 636000 },
-  finance:       { name: 'Finance',        aro: 0.19, avgBreachCost: 5970000, downtimeCost: 500000 },
-  education:     { name: 'Education',      aro: 0.10, avgBreachCost: 3790000, downtimeCost: 120000 },
-  manufacturing: { name: 'Manufacturing',  aro: 0.12, avgBreachCost: 4470000, downtimeCost: 2500000 },
+  finance:       { name: 'Finance',        aro: 0.18, avgBreachCost: 5970000, downtimeCost: 500000 },
+  education:     { name: 'Education',      aro: 0.15, avgBreachCost: 3790000, downtimeCost: 120000 },
+  manufacturing: { name: 'Manufacturing',  aro: 0.16, avgBreachCost: 4470000, downtimeCost: 2500000 },
   technology:    { name: 'Technology',     aro: 0.17, avgBreachCost: 4970000, downtimeCost: 300000 },
-  hospitality:   { name: 'Hospitality',    aro: 0.09, avgBreachCost: 2940000, downtimeCost: 90000 },
+  hospitality:   { name: 'Hospitality',    aro: 0.13, avgBreachCost: 2940000, downtimeCost: 90000 },
 };
 
 // ─── BCDR DATA ─────────────────────────────────────────────────────────────────
 const BCDR = {
-  cold: { label: 'Cold Site', hours: 336, annualCost: 10000 },
-  warm: { label: 'Warm Site', hours: 72,  annualCost: 30000 },
-  hot:  { label: 'Hot Site',  hours: 4,   annualCost: 100000 },
+  cold: { label: 'Offline Backup', hours: 336, annualCost: 10000 },
+  warm: { label: 'Online Backup', hours: 72,  annualCost: 30000 },
+  hot:  { label: 'Managed Backup (Fast Restore)',  hours: 4,   annualCost: 100000 },
 };
 
 // ─── CONTROLS ──────────────────────────────────────────────────────────────────
@@ -988,7 +988,7 @@ function calculate() {
     vBanner.classList.add('warn');
     vTitle.textContent = '⚠ Marginal ROSI';
     vIcon.textContent = '⚠';
-    vText.textContent = `ROSI is ${fmtPct(rosi)}. Consider upgrading to a Hot Site or adding MFA to improve cost-effectiveness. Current ALE is ${fmt(aleResidual)} after controls.`;
+    vText.textContent = `ROSI is ${fmtPct(rosi)}. Consider upgrading to Managed Backup or adding MFA to improve cost-effectiveness. Current ALE is ${fmt(aleResidual)} after controls.`;
   } else {
     vBanner.classList.add('bad');
     vTitle.textContent = '✗ ROSI Not Positive';
